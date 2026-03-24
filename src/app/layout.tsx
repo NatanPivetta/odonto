@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { DM_Sans, DM_Serif_Display } from 'next/font/google'
+import { AuthProvider } from '@/lib/mock/auth'
 import './globals.css'
 
 const dmSans = DM_Sans({
@@ -22,8 +23,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="pt-BR" className={`${dmSans.variable} ${dmSerifDisplay.variable} dark`}>
-        <body>{children}</body>
+        <html lang="pt-BR" className={`${dmSans.variable} ${dmSerifDisplay.variable}`}>
+        <body>
+        <AuthProvider>
+            {children}
+        </AuthProvider>
+        </body>
         </html>
     )
 }
