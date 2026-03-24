@@ -3,15 +3,35 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    box-sizing: border-box;
-  }
+    :root {
+        /* LIGHT THEME */
+        --surface-page: 248 250 251;
+        --surface-default: 255 255 255;
+        --surface-subtle: 241 245 247;
 
-  html {
-    -webkit-font-smoothing: antialiased;
-  }
+        --content-primary: 28 48 56;
+        --content-secondary: 107 138 148;
+        --content-tertiary: 154 176 184;
 
-  body {
-    @apply bg-surface-page text-content-primary font-sans;
-  }
+        --border-subtle: 228 236 239;
+        --border-default: 200 214 220;
+    }
+
+    .dark {
+        /* DARK THEME */
+        --surface-page: 14 30 36;
+        --surface-default: 28 48 56;
+        --surface-subtle: 46 74 84;
+
+        --content-primary: 248 250 251;
+        --content-secondary: 154 176 184;
+        --content-tertiary: 107 138 148;
+
+        --border-subtle: 46 74 84;
+        --border-default: 74 104 114;
+    }
+
+    body {
+        @apply bg-surface-page text-content-primary font-sans;
+    }
 }

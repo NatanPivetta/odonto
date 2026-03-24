@@ -39,25 +39,25 @@ export default function NewActivityModal({ open, onClose, onSave }: NewActivityM
       onClick={onClose}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-content-primary/40 dark:bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-content-primary/40 backdrop-blur-sm" />
 
       {/* Card do modal */}
       <div
         className={cn(
           'relative z-10 w-full max-w-lg',
-          'bg-surface-default dark:bg-darkSurface-default',
-          'border border-border-subtle dark:border-darkBorder-subtle',
+          'bg-surface-default ',
+          'border border-border-subtle ',
           'rounded-xl shadow-md',
         )}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-border-subtle dark:border-darkBorder-subtle">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-border-subtle ">
           <div>
-            <h2 className="font-serif text-xl text-content-primary dark:text-darkContent-primary">
+            <h2 className="font-serif text-xl text-content-primary ">
               Nova Atividade
             </h2>
-            <p className="text-xs text-content-tertiary dark:text-darkContent-tertiary mt-0.5">
+            <p className="text-xs text-content-tertiary mt-0.5">
               Preencha os dados da atividade clínica
             </p>
           </div>
@@ -80,18 +80,18 @@ export default function NewActivityModal({ open, onClose, onSave }: NewActivityM
           />
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[13px] font-medium text-content-secondary dark:text-darkContent-secondary tracking-[0.01em]">
+            <label className="text-[13px] font-medium text-content-secondary tracking-[0.01em]">
               Descrição
             </label>
             <textarea
               className={cn(
-                'font-sans text-sm text-content-primary dark:text-darkContent-primary',
-                'bg-surface-default dark:bg-darkSurface-default',
-                'border-[1.5px] border-border-subtle dark:border-darkBorder-subtle rounded-md',
+                'font-sans text-sm text-content-primary ',
+                'bg-surface-default ',
+                'border-[1.5px] border-border-subtle rounded-md',
                 'px-3.5 py-2.5 w-full outline-none resize-none',
-                'placeholder:text-content-tertiary dark:placeholder:text-darkContent-tertiary',
+                'placeholder:text-content-tertiary ',
                 'transition-[border-color,box-shadow] duration-150',
-                'hover:border-border-default dark:hover:border-darkBorder-default',
+                'hover:border-border-default ',
                 'focus:border-teal-400 focus:shadow-[0_0_0_3px_rgba(31,163,163,0.12)]',
               )}
               rows={3}
@@ -111,7 +111,7 @@ export default function NewActivityModal({ open, onClose, onSave }: NewActivityM
           />
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 pt-2 border-t border-border-subtle dark:border-darkBorder-subtle mt-1">
+          <div className="flex justify-end gap-3 pt-2 border-t border-border-subtle mt-1">
             <Button type="button" variant="ghost" onClick={onClose}>
               Cancelar
             </Button>
