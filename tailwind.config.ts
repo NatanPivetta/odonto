@@ -43,11 +43,11 @@ const config: Config = {
                 content: {
                     primary:   '#1C3038',
                     secondary: '#6B8A94',
-                    tertiary:  '#9AB0B8',
+                    tertiary:  '#637276',
                 },
                 darkContent: {
                     primary:   '#F8FAFB',
-                    secondary: '#9AB0B8',
+                    secondary: '#637276',
                     tertiary:  '#6B8A94',
                 },
             },
