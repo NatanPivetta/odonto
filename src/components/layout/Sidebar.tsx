@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Role } from '@/types'
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 // ── Tipos ──────────────────────────────────────────────────────────
 interface NavItem {
@@ -155,6 +156,7 @@ export default function Sidebar({ role, userName, userInitials = '?' }: SidebarP
           <div className="font-serif text-[15px] text-content-primary leading-tight">ClinOdonto</div>
           <div className="text-[11px] text-content-tertiary tracking-wide">UFRGS</div>
         </div>
+        <ThemeToggle />
       </div>
 
       {/* Navegação */}
