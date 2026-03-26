@@ -5,30 +5,30 @@
 @layer base {
     :root {
         /* LIGHT THEME */
-        --surface-page: 248 250 251;
-        --surface-default: 255 255 255;
-        --surface-subtle: 241 245 247;
+        --surface-page: #F8FAFB;
+        --surface-default: #FFFFFF;
+        --surface-subtle: #F1F5F7;
 
-        --content-primary: 28 48 56;
-        --content-secondary: 107 138 148;
-        --content-tertiary: 154 176 184;
+        --content-primary: #1C3038;
+        --content-secondary: #6B8A94;
+        --content-tertiary: #9AB0B8;
 
-        --border-subtle: 228 236 239;
-        --border-default: 200 214 220;
+        --border-subtle: #E4ECEF;
+        --border-default: #C8D6DC;
     }
 
     .dark {
         /* DARK THEME */
-        --surface-page: 14 30 36;
-        --surface-default: 28 48 56;
-        --surface-subtle: 46 74 84;
+        --surface-page: #0E1E24;
+        --surface-default: #1C3038;
+        --surface-subtle: #2E4A54;
 
-        --content-primary: 248 250 251;
-        --content-secondary: 154 176 184;
-        --content-tertiary: 107 138 148;
+        --content-primary: #F8FAFB;
+        --content-secondary: #9AB0B8;
+        --content-tertiary: #6B8A94;
 
-        --border-subtle: 46 74 84;
-        --border-default: 74 104 114;
+        --border-subtle: #2E4A54;
+        --border-default: #4A6872;
     }
 
     body {
