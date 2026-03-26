@@ -1,21 +1,28 @@
-
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useAuth } from '@/lib/mock/auth'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
+import { useState } from 'react'
 
 export default function LoginPage() {
     const router = useRouter()
+    const { login } = useAuth()
     const [loading, setLoading] = useState(false)
 
     function handleLogin(e: React.FormEvent) {
         e.preventDefault()
         setLoading(true)
-        // Mock: simula delay de autenticação e redireciona
-        setTimeout(() => router.push('/dashboard'), 800)
+        setTimeout(() => {
+            login('ALUNO')
+            router.push('/dashboard')
+        }, 800)
+    }
+
+    function handleMockLogin(role: 'ALUNO' | 'PROFESSOR') {
+        login(role)
+        router.push('/dashboard')
     }
 
     return (
@@ -58,7 +65,7 @@ export default function LoginPage() {
                         <div className="flex gap-2 pt-1">
                             <button
                                 type="button"
-                                onClick={() => router.push('/dashboard')}
+                                onClick={() => handleMockLogin('ALUNO')}
                                 className="text-[11px] text-teal-600 hover:underline"
                             >
                                 Entrar como Aluno →
@@ -66,7 +73,7 @@ export default function LoginPage() {
                             <span className="text-content-tertiary text-[11px]">·</span>
                             <button
                                 type="button"
-                                onClick={() => router.push('/dashboard')}
+                                onClick={() => handleMockLogin('PROFESSOR')}
                                 className="text-[11px] text-teal-600 hover:underline"
                             >
                                 Entrar como Professor →
