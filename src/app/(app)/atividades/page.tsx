@@ -78,7 +78,7 @@ function ActivityCard({activity, onClick}: { activity: Activity; onClick: () => 
             {/* Meta */}
             <div
                 className="flex items-center justify-between text-[11px] text-content-tertiary ">
-                <span>{activity.createdBy}</span>
+                <span className="text-content-secondary">{activity.createdBy}</span>
                 <span>{new Date(activity.createdAt).toLocaleDateString('pt-BR')}</span>
             </div>
         </div>
