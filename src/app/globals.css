@@ -4,31 +4,85 @@
 
 @layer base {
     :root {
-        /* LIGHT THEME */
-        --surface-page: 248 250 251;
-        --surface-default: 255 255 255;
-        --surface-subtle: 241 245 247;
+        /* ── SURFACE ───────────────────────── */
+        --surface-page: 248 250 251;     /* gray-50 */
+        --surface-default: 255 255 255;  /* white */
+        --surface-subtle: 241 245 247;   /* gray-100 */
+        --surface-elevated: 255 255 255;
 
-        --content-primary: 28 48 56;
-        --content-secondary: 107 138 148;
-        --content-tertiary: 99 114 119;
+        /* ── CONTENT ───────────────────────── */
+        --content-primary: 28 48 56;     /* gray-800 */
+        --content-secondary: 107 138 148;/* gray-500 */
+        --content-tertiary: 154 176 184; /* gray-400 */
+        --content-inverse: 255 255 255;
 
-        --border-subtle: 228 236 239;
-        --border-default: 200 214 220;
+        /* ── BORDER ───────────────────────── */
+        --border-subtle: 228 236 239;    /* gray-200 */
+        --border-default: 200 214 220;   /* gray-300 */
+        --border-strong: 154 176 184;    /* gray-400 */
+
+        /* ── BRAND ───────────────────────── */
+        --brand-primary: 31 163 163;     /* teal-500 */
+        --brand-hover: 23 136 136;       /* teal-600 */
+        --brand-subtle: 217 242 242;     /* teal-100 */
+
+        /* ── STATE ───────────────────────── */
+        --state-hover: 241 245 247;
+        --state-active: 228 236 239;
+
+        /* ── SEMANTIC ─────────────────────── */
+        --success: 34 197 94;
+        --success-surface: 240 253 244;
+
+        --warning: 245 158 11;
+        --warning-surface: 255 251 235;
+
+        --error: 239 68 68;
+        --error-surface: 254 242 242;
+
+        --info: 59 130 246;
+        --info-surface: 239 246 255;
     }
 
     .dark {
-        /* DARK THEME */
+        /* ── SURFACE ───────────────────────── */
         --surface-page: 14 30 36;
         --surface-default: 28 48 56;
-        --surface-subtle: 46 74 84;
+        --surface-subtle: 14 30 36;
+        --surface-elevated: 28 48 56;
 
+        /* ── CONTENT ───────────────────────── */
         --content-primary: 248 250 251;
-        --content-secondary: 119 153 164;
+        --content-secondary: 154 176 184;
         --content-tertiary: 107 138 148;
+        --content-inverse: 0 0 0;
 
+        /* ── BORDER ───────────────────────── */
         --border-subtle: 46 74 84;
         --border-default: 74 104 114;
+        --border-strong: 154 176 184;
+
+        /* ── BRAND ───────────────────────── */
+        --brand-primary: 62 184 184;     /* teal-400 */
+        --brand-hover: 111 202 202;      /* teal-300 */
+        --brand-subtle: 9 79 79;         /* teal-800 */
+
+        /* ── STATE ───────────────────────── */
+        --state-hover: 46 74 84;
+        --state-active: 74 104 114;
+
+        /* ── SEMANTIC ─────────────────────── */
+        --success: 34 197 94;
+        --success-surface: 5 46 22;
+
+        --warning: 245 158 11;
+        --warning-surface: 28 16 0;
+
+        --error: 239 68 68;
+        --error-surface: 28 0 0;
+
+        --info: 59 130 246;
+        --info-surface: 12 26 46;
     }
 
     body {

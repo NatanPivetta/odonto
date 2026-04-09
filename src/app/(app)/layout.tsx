@@ -3,7 +3,7 @@
 import { useAuth } from '@/lib/mock/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import Sidebar from '@/components/layout/Sidebar'
+import Sidebar from '@/components/layout/Sidebar/Sidebar'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { user } = useAuth()

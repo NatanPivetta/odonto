@@ -12,6 +12,7 @@ const config: Config = {
                     page: 'rgb(var(--surface-page) / <alpha-value>)',
                     default: 'rgb(var(--surface-default) / <alpha-value>)',
                     subtle: 'rgb(var(--surface-subtle) / <alpha-value>)',
+                    elevated: 'rgb(var(--surface-elevated) / <alpha-value>)',
                 },
                 content: {
                     primary: 'rgb(var(--content-primary) / <alpha-value>)',
@@ -21,12 +22,14 @@ const config: Config = {
                 border: {
                     subtle: 'rgb(var(--border-subtle) / <alpha-value>)',
                     default: 'rgb(var(--border-default) / <alpha-value>)',
+                    strong: 'rgb(var(--border-strong) / <alpha-value>)',
                 },
-                teal: {
-                    500: '#1FA3A3',
-                    600: '#178888',
+                brand: {
+                    primary: 'rgb(var(--brand-primary) / <alpha-value>)',
+                    hover: 'rgb(var(--brand-hover) / <alpha-value>)',
+                    subtle: 'rgb(var(--brand-subtle) / <alpha-value>)',
                 },
-            },
+            }
         },
     },
     plugins: [],

@@ -1,31 +1,27 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 
 type Theme = 'light' | 'dark'
 
 export function useTheme() {
-    const [theme, setTheme] = useState<Theme>('light')
+    const [theme, setTheme] = useState<Theme>(() => {
+        if (typeof window === 'undefined') return 'light'
+
+        const stored = localStorage.getItem('theme') as Theme | null
+        if (stored) return stored
+
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        return prefersDark ? 'dark' : 'light'
+    })
 
     useEffect(() => {
-        const stored = localStorage.getItem('theme') as Theme | null
+        document.documentElement.classList.toggle('dark', theme === 'dark')
+    }, [theme])
 
-        if (stored) {
-            setTheme(stored)
-            document.documentElement.classList.toggle('dark', stored === 'dark')
-        } else {
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-            const initial = prefersDark ? 'dark' : 'light'
-
-            setTheme(initial)
-            document.documentElement.classList.toggle('dark', initial === 'dark')
-        }
-    }, [])
-
+    // ✅ Toggle simples
     const toggleTheme = () => {
         const next = theme === 'dark' ? 'light' : 'dark'
-
         setTheme(next)
         localStorage.setItem('theme', next)
-        document.documentElement.classList.toggle('dark', next === 'dark')
     }
 
     return { theme, toggleTheme }
