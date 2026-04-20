@@ -7,7 +7,7 @@ import {mockAtividades} from '@/lib/mock/atividades'
 import Badge, {statusConfig} from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import NovaAtividadeModal from '@/components/ui/NewActivityModal'
-import {useAuth} from '@/lib/mock/auth'
+import {useAuth} from '@/lib/auth'
 import NewActivityModal from "@/components/ui/NewActivityModal";
 
 // ── Ícones de toggle view ──────────────────────────────────────────

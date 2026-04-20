@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/lib/mock/auth'
+import { useAuth } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar/Sidebar'

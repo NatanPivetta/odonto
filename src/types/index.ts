@@ -1,12 +1,31 @@
 export type Role = 'PROFESSOR' | 'ALUNO'
 
+// Usuário autenticado (sessão local — vem do login)
 export type User = {
-    id: string
+    name: string
+    cardNumber: string
+    role: Role
+}
+
+// Usuário completo retornado pelo backend (listagens, turmas)
+export type UserResponse = {
+    id: number
     name: string
     email: string
+    cardNumber: string
     role: Role
-    matricula?: string   // alunos
-    siape?: string       // professores
+    active: boolean
+    createdAt: string
+}
+
+export type Turma = {
+    id: number
+    disciplina: string
+    name: string
+    semester: string
+    active: boolean
+    alunos: UserResponse[]
+    createdAt: string
 }
 
 export type ActivityStatus = 'PENDENTE' | 'EM_ANDAMENTO' | 'CONCLUIDO' | 'REPROVADO'
