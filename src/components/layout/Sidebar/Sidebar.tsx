@@ -27,7 +27,7 @@ export default function Sidebar({ role, userName, userInitials = '?' }: any) {
   return (
       <motion.aside
           className={cn(
-              'hidden md:flex flex-col h-screen sticky top-0',
+              'hidden md:flex flex-col h-screen sticky top-0 relative',
               'bg-surface-default border-r border-border-subtle shadow-sm'
           )}
           animate={{ width: collapsed ? 64 : 240 }}
@@ -55,19 +55,22 @@ export default function Sidebar({ role, userName, userInitials = '?' }: any) {
               />
           ))}
 
-          <button
-              onClick={toggleSidebar}
-              className={cn(
-                  'flex items-center justify-center',
-                  'w-4 h-4 rounded-full',
-                  'bg-surface-page hover:bg-border-subtle',
-                  'text-content-secondary hover:text-content-primary',
-                  'transition-all duration-200'
-              )}
-          >
-            {collapsed ? <FiChevronsRight size={16} /> : <FiChevronsLeft size={16} />}
-          </button>
         </nav>
+
+        {/* Toggle na borda direita */}
+        <button
+            onClick={toggleSidebar}
+            className={cn(
+                'absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10',
+                'flex items-center justify-center',
+                'w-7 h-7 rounded-full',
+                'bg-surface-default border border-border-subtle shadow-sm',
+                'text-content-secondary hover:text-content-primary hover:bg-surface-subtle',
+                'transition-colors duration-200'
+            )}
+        >
+            {collapsed ? <FiChevronsRight size={16} /> : <FiChevronsLeft size={16} />}
+        </button>
 
         <SidebarFooter
             collapsed={collapsed}
