@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import type { AtividadeResponseDTO, AtividadeStatus } from '@/types'
 import Badge, { statusConfig } from '@/components/ui/Badge'
@@ -174,6 +174,7 @@ function AtividadesContent() {
     const [error, setError]         = useState<string | null>(null)
 
     const { user } = useAuth()
+    const router = useRouter()
     const isProfessor = user?.role === 'PROFESSOR'
 
     const searchParams = useSearchParams()
@@ -267,7 +268,7 @@ function AtividadesContent() {
                         </p>
                     )}
                     {displayed.map(a => (
-                        <ActivityCard key={a.id} activity={a} isProfessor={isProfessor} onClick={() => {}} />
+                        <ActivityCard key={a.id} activity={a} isProfessor={isProfessor} onClick={() => router.push(`/atividades/${a.id}`)} />
                     ))}
                 </div>
             )}
@@ -303,7 +304,7 @@ function AtividadesContent() {
                                 </tr>
                             )}
                             {displayed.map(a => (
-                                <ActivityRow key={a.id} activity={a} isProfessor={isProfessor} onClick={() => {}} />
+                                <ActivityRow key={a.id} activity={a} isProfessor={isProfessor} onClick={() => router.push(`/atividades/${a.id}`)} />
                             ))}
                         </tbody>
                     </table>

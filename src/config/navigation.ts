@@ -49,6 +49,9 @@ export const navProfessor = [
     },
     {
         title: 'Administração',
-        items: [{ label: 'Configurações', href: '/configuracoes', icon: '⚙️', disabled: true }],
+        items: [
+            { label: 'Professores', href: '/administracao/professores', icon: '👨‍🏫' },
+            { label: 'Configurações', href: '/configuracoes', icon: '⚙️', disabled: true },
+        ],
     },
 ]

@@ -4,6 +4,7 @@ import type { AtividadeResponseDTO, AtividadeStatus, Page } from '@/types'
 export interface ListAtividadesParams {
     alunoId?: number
     turmaId?: number
+    atividadePaiId?: number
     page?: number
     size?: number
     sort?: string
@@ -71,6 +72,7 @@ export function listAtividades(params?: ListAtividadesParams) {
         direction: params?.direction ?? 'DESC',
         ...(params?.alunoId !== undefined ? { alunoId: params.alunoId } : {}),
         ...(params?.turmaId !== undefined ? { turmaId: params.turmaId } : {}),
+        ...(params?.atividadePaiId !== undefined ? { atividadePaiId: params.atividadePaiId } : {}),
     })
     return api.get<Page<AtividadeResponseDTO>>(`/v1/atividades?${query}`)
 }

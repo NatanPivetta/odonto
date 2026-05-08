@@ -9,7 +9,7 @@ import type { Turma } from '@/types'
 import { createAtividadeProfessor, createAtividadeAluno } from '@/lib/services/atividades'
 import { listAlunos } from '@/lib/services/users'
 import { listTurmas } from '@/lib/services/turmas'
-import { listUsers } from '@/lib/services/users'
+import { listProfessores } from '@/lib/services/professores'
 import { useAuth } from '@/lib/auth'
 
 interface NewActivityModalProps {
@@ -17,6 +17,8 @@ interface NewActivityModalProps {
     onClose: () => void
     onSave: (atividade: AtividadeResponseDTO) => void
     role: 'PROFESSOR' | 'ALUNO'
+    atividadePaiId?: number
+    parentAtividade?: AtividadeResponseDTO
 }
 
 const STATUS_OPTIONS: { value: AtividadeStatus; label: string }[] = [
@@ -25,56 +27,67 @@ const STATUS_OPTIONS: { value: AtividadeStatus; label: string }[] = [
     { value: 'CONCLUIDA', label: 'Concluída' },
 ]
 
-export default function NewActivityModal({ open, onClose, onSave, role }: NewActivityModalProps) {
+export default function NewActivityModal({
+    open, onClose, onSave, role, atividadePaiId, parentAtividade,
+}: NewActivityModalProps) {
     const { user } = useAuth()
 
-    // campos comuns
-    const [data, setData]               = useState('')
+    const [data, setData]                 = useState('')
     const [dataConclusao, setDataConclusao] = useState('')
-    const [prontuario, setProntuario]   = useState('')
+    const [prontuario, setProntuario]     = useState('')
     const [nomePaciente, setNomePaciente] = useState('')
-    const [observacoes, setObservacoes] = useState('')
-    const [status, setStatus]           = useState<AtividadeStatus>('PENDENTE')
+    const [observacoes, setObservacoes]   = useState('')
+    const [status, setStatus]             = useState<AtividadeStatus>('PENDENTE')
 
-    // professor
-    const [alunoId, setAlunoId]                   = useState('')
-    const [turmaId, setTurmaId]                   = useState('')
+    const [alunoId, setAlunoId]                             = useState('')
+    const [turmaId, setTurmaId]                             = useState('')
     const [professorOrientadorId, setProfessorOrientadorId] = useState('')
-    const [alunos, setAlunos]                     = useState<UserResponse[]>([])
-    const [turmas, setTurmas]                     = useState<Turma[]>([])
-    const [professores, setProfessores]           = useState<UserResponse[]>([])
+    const [alunos, setAlunos]                               = useState<UserResponse[]>([])
+    const [turmas, setTurmas]                               = useState<Turma[]>([])
+    const [professores, setProfessores]                     = useState<UserResponse[]>([])
 
-    // aluno — input temporário até /v1/professores existir
     const [professorIdAluno, setProfessorIdAluno] = useState('')
 
-    const [loading, setLoading]   = useState(false)
-    const [error, setError]       = useState<string | null>(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError]     = useState<string | null>(null)
 
     useEffect(() => {
-        if (!open || role !== 'PROFESSOR') return
+        if (!open) return
 
-        async function loadSelects() {
-            try {
-                const [alunosPage, turmasPage, usersPage] = await Promise.all([
-                    listAlunos({ active: true }),
-                    listTurmas(),
-                    listUsers(),
-                ])
-                setAlunos(alunosPage.content)
-                setTurmas(turmasPage.content)
-
-                const profs = usersPage.content.filter(u => u.role === 'PROFESSOR')
-                setProfessores(profs)
-
-                // pré-seleciona o professor logado pelo cardNumber
-                const me = profs.find(p => p.cardNumber === user?.cardNumber)
-                if (me) setProfessorOrientadorId(String(me.id))
-            } catch {
-                // falha silenciosa — selects ficam vazios
+        // Pré-seleciona campos da atividade pai
+        if (parentAtividade) {
+            if (parentAtividade.nomePaciente) setNomePaciente(parentAtividade.nomePaciente)
+            if (role === 'PROFESSOR') {
+                setAlunoId(String(parentAtividade.aluno.id))
+                setAlunos([parentAtividade.aluno])
+                setTurmaId(String(parentAtividade.turma.id))
             }
         }
-        loadSelects()
-    }, [open, role, user?.cardNumber])
+
+        // Carrega professores para todos os roles — falha independente dos outros selects
+        listProfessores({ active: true })
+            .then(page => {
+                const profs = page.content
+                setProfessores(profs)
+                if (role === 'PROFESSOR') {
+                    const me = profs.find(p => p.cardNumber === user?.cardNumber)
+                    if (me) setProfessorOrientadorId(String(me.id))
+                }
+            })
+            .catch(err => console.error('[NewActivityModal] listProfessores:', err))
+
+        if (role === 'PROFESSOR') {
+            // Alunos: só carrega lista completa se não há atividade pai
+            if (!parentAtividade) {
+                listAlunos({ active: true })
+                    .then(page => setAlunos(page.content))
+                    .catch(err => console.error('[NewActivityModal] listAlunos:', err))
+            }
+            listTurmas()
+                .then(page => setTurmas(page.content))
+                .catch(err => console.error('[NewActivityModal] listTurmas:', err))
+        }
+    }, [open, role, user?.cardNumber, parentAtividade])
 
     function reset() {
         setData('')
@@ -113,6 +126,7 @@ export default function NewActivityModal({ open, onClose, onSave, role }: NewAct
                     alunoId: Number(alunoId),
                     professorOrientadorId: Number(professorOrientadorId),
                     turmaId: Number(turmaId),
+                    atividadePaiId: atividadePaiId ?? null,
                 })
             } else {
                 result = await createAtividadeAluno({
@@ -123,6 +137,7 @@ export default function NewActivityModal({ open, onClose, onSave, role }: NewAct
                     observacoes: observacoes || null,
                     status,
                     professorOrientadorId: Number(professorIdAluno),
+                    atividadePaiId: atividadePaiId ?? null,
                 })
             }
 
@@ -136,6 +151,8 @@ export default function NewActivityModal({ open, onClose, onSave, role }: NewAct
     }
 
     if (!open) return null
+
+    const alunoInferido = role === 'PROFESSOR' && !!parentAtividade
 
     return (
         <div
@@ -156,7 +173,9 @@ export default function NewActivityModal({ open, onClose, onSave, role }: NewAct
                     <div>
                         <h2 className="font-serif text-xl text-content-primary">Nova Atividade</h2>
                         <p className="text-xs text-content-tertiary mt-0.5">
-                            Preencha os dados da atividade clínica
+                            {atividadePaiId
+                                ? `Atividade filha de #${atividadePaiId}`
+                                : 'Preencha os dados da atividade clínica'}
                         </p>
                     </div>
                     <button
@@ -181,11 +200,14 @@ export default function NewActivityModal({ open, onClose, onSave, role }: NewAct
                                     required
                                     value={alunoId}
                                     onChange={e => setAlunoId(e.target.value)}
+                                    disabled={alunoInferido}
                                     className={cn(
                                         'font-sans text-sm text-content-primary bg-surface-default',
                                         'border-[1.5px] border-border-subtle rounded-md px-3.5 py-2.5',
                                         'outline-none transition-[border-color] duration-150',
-                                        'hover:border-border-default focus:border-teal-400',
+                                        alunoInferido
+                                            ? 'opacity-60 cursor-not-allowed'
+                                            : 'hover:border-border-default focus:border-teal-400',
                                     )}
                                 >
                                     <option value="">Selecione o aluno</option>
@@ -245,19 +267,24 @@ export default function NewActivityModal({ open, onClose, onSave, role }: NewAct
                     {role === 'ALUNO' && (
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[13px] font-medium text-content-secondary tracking-[0.01em]">
-                                ID do professor orientador <span className="text-red-500">*</span>
+                                Professor orientador <span className="text-red-500">*</span>
                             </label>
-                            <Input
-                                type="number"
-                                placeholder="Ex: 42"
+                            <select
+                                required
                                 value={professorIdAluno}
                                 onChange={e => setProfessorIdAluno(e.target.value)}
-                                required
-                                min={1}
-                            />
-                            <p className="text-[11px] text-content-tertiary">
-                                Seleção por nome disponível em breve
-                            </p>
+                                className={cn(
+                                    'font-sans text-sm text-content-primary bg-surface-default',
+                                    'border-[1.5px] border-border-subtle rounded-md px-3.5 py-2.5',
+                                    'outline-none transition-[border-color] duration-150',
+                                    'hover:border-border-default focus:border-teal-400',
+                                )}
+                            >
+                                <option value="">Selecione o professor</option>
+                                {professores.map(p => (
+                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                ))}
+                            </select>
                         </div>
                     )}
 
