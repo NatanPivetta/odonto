@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { FiGrid, FiClipboard, FiUser, FiUsers } from 'react-icons/fi'
+import { usePathname, useRouter } from 'next/navigation'
+import { FiGrid, FiClipboard, FiUser, FiUsers, FiLogOut } from 'react-icons/fi'
+import { useAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 type Role = 'PROFESSOR' | 'ALUNO'
@@ -25,7 +26,14 @@ const itemsProfessor = [
 
 export default function BottomNav({ role }: BottomNavProps) {
     const pathname = usePathname()
+    const router = useRouter()
+    const { logout } = useAuth()
     const items = role === 'PROFESSOR' ? itemsProfessor : itemsAluno
+
+    function handleLogout() {
+        logout()
+        router.replace('/login')
+    }
 
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-default border-t border-border-subtle z-50">
@@ -60,6 +68,14 @@ export default function BottomNav({ role }: BottomNavProps) {
                         </Link>
                     )
                 })}
+
+                <button
+                    onClick={handleLogout}
+                    className="flex flex-col items-center gap-1 text-xs px-4 py-1 text-content-secondary hover:text-red-600 transition-colors"
+                >
+                    <FiLogOut size={20} />
+                    Sair
+                </button>
             </div>
         </div>
     )
