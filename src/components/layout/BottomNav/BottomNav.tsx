@@ -12,13 +12,20 @@ interface BottomNavProps {
     role: Role
 }
 
-const itemsAluno = [
+interface NavItem {
+    label: string
+    href: string
+    icon: React.ComponentType<{ size?: number }>
+    disabled?: boolean
+}
+
+const itemsAluno: NavItem[] = [
     { label: 'Painel', href: '/dashboard', icon: FiGrid },
     { label: 'Atividades', href: '/atividades', icon: FiClipboard },
     { label: 'Perfil', href: '/perfil', icon: FiUser, disabled: true },
 ]
 
-const itemsProfessor = [
+const itemsProfessor: NavItem[] = [
     { label: 'Painel', href: '/dashboard', icon: FiGrid },
     { label: 'Atividades', href: '/atividades', icon: FiClipboard },
     { label: 'Alunos', href: '/alunos/turmas', icon: FiUsers },

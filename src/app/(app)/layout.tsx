@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar/Sidebar'
 import BottomNav from '@/components/layout/BottomNav/BottomNav'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { user, isInitialized } = useAuth()
@@ -34,6 +35,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
                 {children}
             </main>
+            <ThemeToggle className="md:hidden fixed top-3 right-3 z-50" />
             <BottomNav role={user.role} />
         </div>
     )
