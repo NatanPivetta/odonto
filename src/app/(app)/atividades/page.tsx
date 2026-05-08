@@ -109,7 +109,7 @@ function ActivityRow({ activity, isProfessor, onClick }: {
     const { variant, label } = statusConfig[activity.status]
 
     return (
-        <tr onClick={onClick} className="cursor-pointer hover:bg-teal-50 transition-colors">
+        <tr onClick={onClick} className="cursor-pointer hover:bg-surface-subtle transition-colors">
             <td className="px-4 py-3 text-sm font-medium text-content-primary">
                 {activity.nomePaciente ?? '—'}
             </td>
