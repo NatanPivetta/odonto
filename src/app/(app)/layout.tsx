@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar/Sidebar'
+import BottomNav from '@/components/layout/BottomNav/BottomNav'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { user, isInitialized } = useAuth()
@@ -30,9 +31,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 userName={user.name}
                 userInitials={initials}
             />
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
                 {children}
             </main>
+            <BottomNav role={user.role} />
         </div>
     )
 }

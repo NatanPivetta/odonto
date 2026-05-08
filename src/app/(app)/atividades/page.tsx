@@ -181,12 +181,13 @@ function AtividadesContent() {
 
     useEffect(() => {
         if (!user) return
+        const currentUser = user
 
         async function load() {
             try {
                 setLoading(true)
                 setError(null)
-                const page = user.role === 'PROFESSOR'
+                const page = currentUser.role === 'PROFESSOR'
                     ? await listAtividades()
                     : await listMinhasAtividades()
                 setAtividades(page.content)
