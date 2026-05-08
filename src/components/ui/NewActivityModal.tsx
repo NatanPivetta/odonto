@@ -65,7 +65,7 @@ export default function NewActivityModal({
         }
 
         // Carrega professores para todos os roles — falha independente dos outros selects
-        listProfessores({ active: true })
+        listProfessores()
             .then(page => {
                 const profs = page.content
                 setProfessores(profs)

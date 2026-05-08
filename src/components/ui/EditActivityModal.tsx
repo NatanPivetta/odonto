@@ -61,7 +61,7 @@ export default function EditActivityModal({
         setError(null)
 
         if (role === 'PROFESSOR') {
-            listProfessores({ active: true })
+            listProfessores()
                 .then(page => setProfessores(page.content))
                 .catch(err => console.error('[EditActivityModal] listProfessores:', err))
         }
