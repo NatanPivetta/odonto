@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import type { AtividadeResponseDTO } from '@/types'
+import type { AtividadeResponseDTO, Feedback } from '@/types'
 import Badge, { statusConfig } from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import NewActivityModal from '@/components/ui/NewActivityModal'
 import EditActivityModal from '@/components/ui/EditActivityModal'
 import { useAuth } from '@/lib/auth'
-import { getAtividadeById, listAtividades, listMinhasAtividades, deleteAtividade, updateAtividadeProfessor } from '@/lib/services/atividades'
+import { getAtividadeById, listAtividades, listMinhasAtividades, deleteAtividade } from '@/lib/services/atividades'
+import { listFeedbacks, createFeedback, deleteFeedback } from '@/lib/services/feedbacks'
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
@@ -63,9 +64,11 @@ export default function AtividadeDetailPage() {
     const [deleting, setDeleting]           = useState(false)
     const [deleteError, setDeleteError]     = useState<string | null>(null)
 
-    const [feedback, setFeedback]               = useState('')
-    const [savingFeedback, setSavingFeedback]   = useState(false)
-    const [feedbackError, setFeedbackError]     = useState<string | null>(null)
+    const [feedbacks, setFeedbacks]               = useState<Feedback[]>([])
+    const [loadingFeedbacks, setLoadingFeedbacks] = useState(false)
+    const [newFeedback, setNewFeedback]           = useState('')
+    const [savingFeedback, setSavingFeedback]     = useState(false)
+    const [feedbackError, setFeedbackError]       = useState<string | null>(null)
 
     useEffect(() => {
         if (isNaN(atividadeId) || !user) return
@@ -81,14 +84,12 @@ export default function AtividadeDetailPage() {
                         listAtividades({ atividadePaiId: atividadeId, size: 100 }),
                     ])
                     setAtividade(ativ)
-                    setFeedback(ativ.feedbackPrivado ?? '')
                     setFilhas(filhasPage.content.filter(a => a.atividadePaiId === atividadeId))
                 } else {
                     const minhasPage = await listMinhasAtividades({ size: 200 })
                     const ativ = minhasPage.content.find(a => a.id === atividadeId)
                     if (!ativ) throw new Error('not found')
                     setAtividade(ativ)
-                    setFeedback(ativ.feedbackPrivado ?? '')
                     setFilhas(minhasPage.content.filter(a => a.atividadePaiId === atividadeId))
                 }
             } catch {
@@ -96,6 +97,13 @@ export default function AtividadeDetailPage() {
             } finally {
                 setLoading(false)
             }
+
+            // feedbacks carregam independente para não bloquear a página
+            setLoadingFeedbacks(true)
+            listFeedbacks(atividadeId)
+                .then(data => setFeedbacks(data))
+                .catch(err => console.error('[AtividadeDetail] listFeedbacks:', err))
+                .finally(() => setLoadingFeedbacks(false))
         }
         load()
     }, [atividadeId, user])
@@ -106,22 +114,6 @@ export default function AtividadeDetailPage() {
 
     function handleSaved(updated: AtividadeResponseDTO) {
         setAtividade(updated)
-        setFeedback(updated.feedbackPrivado ?? '')
-    }
-
-    async function handleSaveFeedback() {
-        setSavingFeedback(true)
-        setFeedbackError(null)
-        try {
-            const updated = await updateAtividadeProfessor(atividadeId, {
-                feedbackPrivado: feedback || null,
-            })
-            setAtividade(updated)
-        } catch (err: any) {
-            setFeedbackError(err?.message ?? 'Erro ao salvar feedback.')
-        } finally {
-            setSavingFeedback(false)
-        }
     }
 
     async function handleDelete() {
@@ -134,6 +126,30 @@ export default function AtividadeDetailPage() {
             setDeleteError(err?.message ?? 'Erro ao excluir atividade.')
             setDeleting(false)
             setConfirmDelete(false)
+        }
+    }
+
+    async function handleAddFeedback() {
+        if (!newFeedback.trim()) return
+        setSavingFeedback(true)
+        setFeedbackError(null)
+        try {
+            const fb = await createFeedback(atividadeId, newFeedback.trim())
+            setFeedbacks(prev => [...prev, fb])
+            setNewFeedback('')
+        } catch (err: any) {
+            setFeedbackError(err?.message ?? 'Erro ao adicionar feedback.')
+        } finally {
+            setSavingFeedback(false)
+        }
+    }
+
+    async function handleDeleteFeedback(feedbackId: number) {
+        try {
+            await deleteFeedback(atividadeId, feedbackId)
+            setFeedbacks(prev => prev.filter(f => f.id !== feedbackId))
+        } catch (err: any) {
+            console.error('[AtividadeDetail] deleteFeedback:', err)
         }
     }
 
@@ -265,7 +281,6 @@ export default function AtividadeDetailPage() {
                 </InfoCard>
             )}
 
-
             {/* Atividades filhas */}
             <div className="mt-8">
                 <div className="flex items-center justify-between mb-4">
@@ -318,55 +333,89 @@ export default function AtividadeDetailPage() {
 
             {/* Feedbacks */}
             <div className="mt-8">
-                <h2 className="font-serif text-xl text-content-primary mb-4">Feedback</h2>
+                <h2 className="font-serif text-xl text-content-primary mb-4">
+                    Feedbacks
+                    {feedbacks.length > 0 && (
+                        <span className="ml-2 text-base font-sans text-content-tertiary">
+                            ({feedbacks.length})
+                        </span>
+                    )}
+                </h2>
 
-                {isProfessor ? (
-                    <div className="bg-surface-default border border-border-subtle rounded-xl p-5 flex flex-col gap-3">
-                        <textarea
-                            rows={4}
-                            placeholder="Adicione um feedback para o aluno..."
-                            value={feedback}
-                            onChange={e => setFeedback(e.target.value.slice(0, 1000))}
-                            className={cn(
-                                'font-sans text-sm text-content-primary bg-surface-default',
-                                'border-[1.5px] border-border-subtle rounded-md px-3.5 py-2.5 w-full outline-none resize-none',
-                                'placeholder:text-content-tertiary transition-[border-color,box-shadow] duration-150',
-                                'hover:border-border-default focus:border-teal-400 focus:shadow-[0_0_0_3px_rgba(31,163,163,0.12)]',
-                            )}
-                        />
-                        <div className="flex items-center justify-between">
-                            <span className={cn(
-                                'text-xs tabular-nums',
-                                feedback.length >= 1000 ? 'text-red-500' : 'text-content-tertiary',
-                            )}>
-                                {feedback.length}/1000
-                            </span>
-                            <Button
-                                size="sm"
-                                onClick={handleSaveFeedback}
-                                loading={savingFeedback}
-                                disabled={feedback === (atividade.feedbackPrivado ?? '')}
+                <div className="flex flex-col gap-3">
+                    {loadingFeedbacks ? (
+                        <p className="text-sm text-content-tertiary">Carregando feedbacks...</p>
+                    ) : feedbacks.length === 0 ? (
+                        <p className="text-sm text-content-tertiary italic">
+                            Nenhum feedback registrado ainda.
+                        </p>
+                    ) : (
+                        feedbacks.map(fb => (
+                            <div
+                                key={fb.id}
+                                className="bg-surface-default border border-border-subtle rounded-xl p-4"
                             >
-                                Salvar feedback
-                            </Button>
+                                <div className="flex items-start justify-between gap-3 mb-2">
+                                    <p className="text-xs text-content-tertiary">
+                                        <span className="font-medium text-content-secondary">
+                                            {fb.professor.name}
+                                        </span>
+                                        {' · '}
+                                        {new Date(fb.createdAt).toLocaleDateString('pt-BR')}
+                                    </p>
+                                    {isProfessor && (
+                                        <button
+                                            onClick={() => handleDeleteFeedback(fb.id)}
+                                            className="text-xs text-content-tertiary hover:text-red-500 transition-colors shrink-0"
+                                        >
+                                            Remover
+                                        </button>
+                                    )}
+                                </div>
+                                <p className="text-sm text-content-secondary whitespace-pre-wrap">
+                                    {fb.texto}
+                                </p>
+                            </div>
+                        ))
+                    )}
+
+                    {/* Input de novo feedback — professor only */}
+                    {isProfessor && (
+                        <div className="bg-surface-default border border-border-subtle rounded-xl p-5 flex flex-col gap-3">
+                            <textarea
+                                rows={3}
+                                placeholder="Adicionar feedback..."
+                                value={newFeedback}
+                                onChange={e => setNewFeedback(e.target.value.slice(0, 1000))}
+                                className={cn(
+                                    'font-sans text-sm text-content-primary bg-surface-default',
+                                    'border-[1.5px] border-border-subtle rounded-md px-3.5 py-2.5 w-full outline-none resize-none',
+                                    'placeholder:text-content-tertiary transition-[border-color,box-shadow] duration-150',
+                                    'hover:border-border-default focus:border-teal-400 focus:shadow-[0_0_0_3px_rgba(31,163,163,0.12)]',
+                                )}
+                            />
+                            <div className="flex items-center justify-between">
+                                <span className={cn(
+                                    'text-xs tabular-nums',
+                                    newFeedback.length >= 1000 ? 'text-red-500' : 'text-content-tertiary',
+                                )}>
+                                    {newFeedback.length}/1000
+                                </span>
+                                <Button
+                                    size="sm"
+                                    onClick={handleAddFeedback}
+                                    loading={savingFeedback}
+                                    disabled={!newFeedback.trim()}
+                                >
+                                    Adicionar feedback
+                                </Button>
+                            </div>
+                            {feedbackError && (
+                                <p className="text-xs text-red-600">{feedbackError}</p>
+                            )}
                         </div>
-                        {feedbackError && (
-                            <p className="text-xs text-red-600">{feedbackError}</p>
-                        )}
-                    </div>
-                ) : (
-                    <div className="bg-surface-default border border-border-subtle rounded-xl p-5">
-                        {atividade.feedbackPrivado ? (
-                            <p className="text-sm text-content-secondary whitespace-pre-wrap">
-                                {atividade.feedbackPrivado}
-                            </p>
-                        ) : (
-                            <p className="text-sm text-content-tertiary italic">
-                                Nenhum feedback registrado ainda.
-                            </p>
-                        )}
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
 
             {/* Modais */}

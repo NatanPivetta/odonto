@@ -36,6 +36,13 @@ export type Page<T> = {
 
 export type AtividadeStatus = 'PENDENTE' | 'EM_ANDAMENTO' | 'CONCLUIDA'
 
+export type Feedback = {
+    id: number
+    texto: string
+    professor: UserResponse
+    createdAt: string
+}
+
 export type AtividadeResponseDTO = {
     id: number
     data: string

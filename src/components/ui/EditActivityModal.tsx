@@ -41,7 +41,6 @@ export default function EditActivityModal({
     const [prontuario, setProntuario]         = useState('')
     const [nomePaciente, setNomePaciente]     = useState('')
     const [observacoes, setObservacoes]       = useState('')
-    const [feedbackPrivado, setFeedbackPrivado] = useState('')
     const [professorOrientadorId, setProfessorOrientadorId] = useState('')
     const [status, setStatus]                 = useState<AtividadeStatus>('PENDENTE')
     const [professores, setProfessores]       = useState<UserResponse[]>([])
@@ -57,7 +56,6 @@ export default function EditActivityModal({
         setProntuario(atividade.prontuario)
         setNomePaciente(atividade.nomePaciente ?? '')
         setObservacoes(atividade.observacoes ?? '')
-        setFeedbackPrivado(atividade.feedbackPrivado ?? '')
         setProfessorOrientadorId(String(atividade.professorOrientador.id))
         setStatus(atividade.status)
         setError(null)
@@ -83,7 +81,6 @@ export default function EditActivityModal({
                     prontuario,
                     nomePaciente: nomePaciente || null,
                     observacoes: observacoes || null,
-                    feedbackPrivado: feedbackPrivado || null,
                     professorOrientadorId: Number(professorOrientadorId),
                 })
                 if (status !== atividade.status) {
