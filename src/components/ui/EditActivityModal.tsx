@@ -196,24 +196,6 @@ export default function EditActivityModal({
                         <>
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[13px] font-medium text-content-secondary tracking-[0.01em]">
-                                    Feedback privado
-                                </label>
-                                <textarea
-                                    rows={2}
-                                    placeholder="Visível apenas para professores"
-                                    value={feedbackPrivado}
-                                    onChange={e => setFeedbackPrivado(e.target.value)}
-                                    className={cn(
-                                        'font-sans text-sm text-content-primary bg-surface-default',
-                                        'border-[1.5px] border-border-subtle rounded-md px-3.5 py-2.5 w-full outline-none resize-none',
-                                        'placeholder:text-content-tertiary transition-[border-color,box-shadow] duration-150',
-                                        'hover:border-border-default focus:border-teal-400 focus:shadow-[0_0_0_3px_rgba(31,163,163,0.12)]',
-                                    )}
-                                />
-                            </div>
-
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-[13px] font-medium text-content-secondary tracking-[0.01em]">
                                     Professor orientador <span className="text-red-500">*</span>
                                 </label>
                                 <select
