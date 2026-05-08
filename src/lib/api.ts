@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '')
 
 if (!BASE_URL) {
   throw new Error('NEXT_PUBLIC_API_URL não está definida. Verifique seu .env.local.')
@@ -85,6 +85,12 @@ export const api = {
   },
   put<T>(path: string, body: unknown) {
     return request<T>(path, { method: 'PUT', body: JSON.stringify(body) })
+  },
+  patch<T>(path: string, body?: unknown) {
+    return request<T>(path, {
+      method: 'PATCH',
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    })
   },
   delete<T = void>(path: string) {
     return request<T>(path, { method: 'DELETE' })

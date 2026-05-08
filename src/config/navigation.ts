@@ -8,17 +8,17 @@ export const navAluno = [
                 href: '/atividades',
                 icon: '📋',
                 children: [
-                    { label: 'Pendentes', href: '/atividades?status=pendente' },
-                    { label: 'Concluídas', href: '/atividades?status=concluido' },
-                    { label: 'Reprovadas', href: '/atividades?status=reprovado' },
+                    { label: 'Pendentes', href: '/atividades?status=PENDENTE' },
+                    { label: 'Em andamento', href: '/atividades?status=EM_ANDAMENTO' },
+                    { label: 'Concluídas', href: '/atividades?status=CONCLUIDA' },
                 ],
             },
-            { label: 'Meu progresso', href: '/progresso', icon: '📈' },
+            { label: 'Meu progresso', href: '/progresso', icon: '📈', disabled: true },
         ],
     },
     {
         title: 'Conta',
-        items: [{ label: 'Perfil', href: '/perfil', icon: '👤' }],
+        items: [{ label: 'Perfil', href: '/perfil', icon: '👤', disabled: true }],
     },
 ]
 
@@ -32,24 +32,23 @@ export const navProfessor = [
                 href: '/atividades',
                 icon: '📋',
                 children: [
-                    { label: 'Criar atividade', href: '/atividades/criar' },
-                    { label: 'Aprovações', href: '/atividades/aprovacoes', badge: 5 },
-                    { label: 'Todas', href: '/atividades/todas' },
+                    { label: 'Aprovações', href: '/atividades/aprovacoes', badge: 5, disabled: true },
+                    { label: 'Todas', href: '/atividades' },
                 ],
             },
             {
                 label: 'Alunos',
-                href: '/alunos',
+                href: '/alunos/turmas',
                 icon: '👥',
                 children: [
                     { label: 'Turmas', href: '/alunos/turmas' },
-                    { label: 'Progresso', href: '/alunos/progresso' },
+                    { label: 'Progresso', href: '/alunos/progresso', disabled: true },
                 ],
             },
         ],
     },
     {
         title: 'Administração',
-        items: [{ label: 'Configurações', href: '/configuracoes', icon: '⚙️' }],
+        items: [{ label: 'Configurações', href: '/configuracoes', icon: '⚙️', disabled: true }],
     },
 ]

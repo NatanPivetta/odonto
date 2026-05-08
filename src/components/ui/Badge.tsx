@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import { HTMLAttributes } from 'react'
-import { ActivityStatus } from '@/types'
+import { AtividadeStatus } from '@/types'
 
 type BadgeVariant = 'teal' | 'blue' | 'green' | 'warning' | 'error' | 'gray'
 
@@ -19,12 +19,12 @@ const variantClasses: Record<BadgeVariant, string> = {
 }
 
 export default function Badge({
-                                  variant = 'teal',
-                                  dot = false,
-                                  className,
-                                  children,
-                                  ...props
-                              }: BadgeProps) {
+    variant = 'teal',
+    dot = false,
+    className,
+    children,
+    ...props
+}: BadgeProps) {
     return (
         <span
             className={cn(
@@ -35,17 +35,16 @@ export default function Badge({
             )}
             {...props}
         >
-      {dot && (
-          <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0" />
-      )}
+            {dot && (
+                <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0" />
+            )}
             {children}
-    </span>
+        </span>
     )
 }
 
-export const statusConfig: Record<ActivityStatus, { variant: BadgeVariant; label: string }> = {
-    PENDENTE:     { variant: 'warning', label: 'Pendente'     },
-    EM_ANDAMENTO: { variant: 'teal',    label: 'Em andamento' },
-    CONCLUIDO:    { variant: 'green',   label: 'Concluído'    },
-    REPROVADO:    { variant: 'error',   label: 'Reprovado'    },
+export const statusConfig: Record<AtividadeStatus, { variant: BadgeVariant; label: string }> = {
+    PENDENTE:     { variant: 'warning', label: 'Pendente'      },
+    EM_ANDAMENTO: { variant: 'teal',    label: 'Em andamento'  },
+    CONCLUIDA:    { variant: 'green',   label: 'Concluída'     },
 }

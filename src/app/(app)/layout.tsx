@@ -6,14 +6,15 @@ import { useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar/Sidebar'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-    const { user } = useAuth()
+    const { user, isInitialized } = useAuth()
     const router = useRouter()
 
     useEffect(() => {
+        if (!isInitialized) return
         if (!user) router.replace('/login')
-    }, [user, router])
+    }, [user, isInitialized, router])
 
-    if (!user) return null
+    if (!isInitialized || !user) return null
 
     const initials = user.name
         .split(' ')

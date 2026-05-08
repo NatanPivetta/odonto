@@ -30,6 +30,7 @@ function clearUser() {
 
 interface AuthContextType {
     user: User | null
+    isInitialized: boolean
     login: (cardNumber: string, password: string) => Promise<void>
     logout: () => void
 }
@@ -38,11 +39,12 @@ const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
+    const [isInitialized, setIsInitialized] = useState(false)
 
-    // Restaura sessão ao recarregar a página enquanto o token existir
     useEffect(() => {
         const token = tokenStorage.get()
         if (token) setUser(loadUser())
+        setIsInitialized(true)
     }, [])
 
     async function login(cardNumber: string, password: string) {
@@ -59,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, isInitialized, login, logout }}>
             {children}
         </AuthContext.Provider>
     )

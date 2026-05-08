@@ -58,7 +58,7 @@ export default function LoginPage() {
                         Use suas credenciais institucionais
                     </p>
 
-                    <form onSubmit={handleLogin} className="flex flex-col gap-4">
+                    <form onSubmit={handleLogin} method="post" className="flex flex-col gap-4">
                         <Input
                             name="cardNumber"
                             label="Número do cartão"

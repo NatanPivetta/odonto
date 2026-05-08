@@ -1,13 +1,11 @@
 export type Role = 'PROFESSOR' | 'ALUNO'
 
-// Usuário autenticado (sessão local — vem do login)
 export type User = {
     name: string
     cardNumber: string
     role: Role
 }
 
-// Usuário completo retornado pelo backend (listagens, turmas)
 export type UserResponse = {
     id: number
     name: string
@@ -28,15 +26,29 @@ export type Turma = {
     createdAt: string
 }
 
-export type ActivityStatus = 'PENDENTE' | 'EM_ANDAMENTO' | 'CONCLUIDO' | 'REPROVADO'
+export type Page<T> = {
+    content: T[]
+    totalElements: number
+    totalPages: number
+    number: number
+    size: number
+}
 
-export type Activity = {
-    id: string
-    title: string
-    description: string
-    requiredCount: number
-    completedCount: number
-    status: ActivityStatus
-    createdBy: string
+export type AtividadeStatus = 'PENDENTE' | 'EM_ANDAMENTO' | 'CONCLUIDA'
+
+export type AtividadeResponseDTO = {
+    id: number
+    data: string
+    dataConclusao: string | null
+    prontuario: string
+    nomePaciente: string | null
+    observacoes: string | null
+    feedbackPrivado: string | null
+    status: AtividadeStatus
+    aluno: UserResponse
+    professorOrientador: UserResponse
+    professorTutor: UserResponse | null
+    turma: { id: number; disciplina: string; name: string; semester: string }
+    atividadePaiId: number | null
     createdAt: string
 }

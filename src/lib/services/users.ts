@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { Role, UserResponse } from '@/types'
+import type { Role, UserResponse, Page } from '@/types'
 
 export interface CreateUserRequest {
     name: string
@@ -14,14 +14,6 @@ export interface UpdateUserRequest {
     email?: string
     role?: Role
     active?: boolean
-}
-
-export interface Page<T> {
-    content: T[]
-    totalElements: number
-    totalPages: number
-    number: number
-    size: number
 }
 
 export function createUser(data: CreateUserRequest) {

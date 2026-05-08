@@ -1,23 +1,23 @@
 'use client'
 
-import {useState} from 'react'
-import {cn} from '@/lib/utils'
-import {Activity} from '@/types'
-import {mockAtividades} from '@/lib/mock/atividades'
-import Badge, {statusConfig} from '@/components/ui/Badge'
-import Button from '@/components/ui/Button'
-import NovaAtividadeModal from '@/components/ui/NewActivityModal'
-import {useAuth} from '@/lib/auth'
-import NewActivityModal from "@/components/ui/NewActivityModal";
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { cn } from '@/lib/utils'
+import type { AtividadeResponseDTO, AtividadeStatus } from '@/types'
+import Badge, { statusConfig } from '@/components/ui/Badge'
+import NewActivityModal from '@/components/ui/NewActivityModal'
+import { useAuth } from '@/lib/auth'
+import { listAtividades, listMinhasAtividades } from '@/lib/services/atividades'
 
-// ── Ícones de toggle view ──────────────────────────────────────────
+// ── Ícones ─────────────────────────────────────────────────────────
+
 function IconGrid() {
     return (
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
-            <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor"/>
-            <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
-            <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor"/>
+            <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" />
+            <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" />
+            <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" />
+            <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" />
         </svg>
     )
 }
@@ -25,155 +25,186 @@ function IconGrid() {
 function IconList() {
     return (
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="1" y="2" width="14" height="2.5" rx="1.25" fill="currentColor"/>
-            <rect x="1" y="6.75" width="14" height="2.5" rx="1.25" fill="currentColor"/>
-            <rect x="1" y="11.5" width="14" height="2.5" rx="1.25" fill="currentColor"/>
+            <rect x="1" y="2" width="14" height="2.5" rx="1.25" fill="currentColor" />
+            <rect x="1" y="6.75" width="14" height="2.5" rx="1.25" fill="currentColor" />
+            <rect x="1" y="11.5" width="14" height="2.5" rx="1.25" fill="currentColor" />
         </svg>
     )
 }
 
-// ── Card de atividade ──────────────────────────────────────────────
-function ActivityCard({activity, onClick}: { activity: Activity; onClick: () => void }) {
-    const {variant, label} = statusConfig[activity.status]
-    const progress = Math.round((activity.completedCount / activity.requiredCount) * 100)
+// ── Card ────────────────────────────────────────────────────────────
+
+function ActivityCard({ activity, isProfessor, onClick }: {
+    activity: AtividadeResponseDTO
+    isProfessor: boolean
+    onClick: () => void
+}) {
+    const { variant, label } = statusConfig[activity.status]
 
     return (
         <div
             onClick={onClick}
             className={cn(
-                'bg-surface-default ',
-                'border border-border-subtle ',
+                'bg-surface-default border border-border-subtle',
                 'rounded-xl shadow-xs p-5 cursor-pointer',
                 'hover:shadow-sm hover:border-border-default',
-                'transition-all duration-150',
+                'transition-all duration-150 flex flex-col gap-3',
             )}
         >
-            <div className="flex items-start justify-between gap-3 mb-3">
-                <h3 className="text-sm font-semibold text-content-primary leading-snug">
-                    {activity.title}
-                </h3>
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <h3 className="text-sm font-semibold text-content-primary leading-snug truncate">
+                        {activity.nomePaciente ?? 'Paciente não informado'}
+                    </h3>
+                    <p className="text-xs text-content-tertiary mt-0.5 font-mono">
+                        {activity.prontuario}
+                    </p>
+                </div>
                 <Badge variant={variant} dot>{label}</Badge>
             </div>
 
-            <p className="text-xs text-content-secondary  line-clamp-2 mb-4">
-                {activity.description}
-            </p>
+            {activity.observacoes && (
+                <p className="text-xs text-content-secondary line-clamp-2">
+                    {activity.observacoes}
+                </p>
+            )}
 
-            {/* Progresso */}
-            <div className="mb-4">
-                <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-content-secondary ">Progresso</span>
-                    <span className="font-medium text-content-primary ">
-            {activity.completedCount}/{activity.requiredCount}
-          </span>
+            <div className="pt-3 border-t border-border-subtle flex flex-col gap-1 text-[11px]">
+                {isProfessor && (
+                    <div className="flex justify-between">
+                        <span className="text-content-tertiary">Aluno</span>
+                        <span className="text-content-secondary font-medium truncate max-w-[60%] text-right">
+                            {activity.aluno.name}
+                        </span>
+                    </div>
+                )}
+                <div className="flex justify-between">
+                    <span className="text-content-tertiary">Professor</span>
+                    <span className="text-content-secondary truncate max-w-[60%] text-right">
+                        {activity.professorOrientador.name}
+                    </span>
                 </div>
-                <div className="h-1.5 bg-surface-subtle  rounded-full overflow-hidden">
-                    <div
-                        className="h-full rounded-full bg-gradient-to-r from-teal-400 to-teal-500 transition-all duration-500"
-                        style={{width: `${progress}%`}}
-                    />
+                <div className="flex justify-between">
+                    <span className="text-content-tertiary">Turma</span>
+                    <span className="text-content-secondary">{activity.turma.name}</span>
                 </div>
-            </div>
-
-            {/* Meta */}
-            <div
-                className="flex items-center justify-between text-[11px] text-content-tertiary ">
-                <span className="text-content-secondary">{activity.createdBy}</span>
-                <span>{new Date(activity.createdAt).toLocaleDateString('pt-BR')}</span>
+                <div className="flex justify-between">
+                    <span className="text-content-tertiary">Data</span>
+                    <span className="text-content-secondary">
+                        {new Date(activity.data + 'T00:00:00').toLocaleDateString('pt-BR')}
+                    </span>
+                </div>
             </div>
         </div>
     )
 }
 
-// ── Linha da tabela ────────────────────────────────────────────────
-function ActivityRow({activity, onClick}: { activity: Activity; onClick: () => void }) {
-    const {variant, label} = statusConfig[activity.status]
-    const progress = Math.round((activity.completedCount / activity.requiredCount) * 100)
+// ── Linha da tabela ─────────────────────────────────────────────────
+
+function ActivityRow({ activity, isProfessor, onClick }: {
+    activity: AtividadeResponseDTO
+    isProfessor: boolean
+    onClick: () => void
+}) {
+    const { variant, label } = statusConfig[activity.status]
 
     return (
-        <tr
-            onClick={onClick}
-            className="cursor-pointer hover:bg-teal-50 transition-colors"
-        >
-            <td className="px-4 py-3 text-sm font-medium text-content-primary ">
-                {activity.title}
+        <tr onClick={onClick} className="cursor-pointer hover:bg-teal-50 transition-colors">
+            <td className="px-4 py-3 text-sm font-medium text-content-primary">
+                {activity.nomePaciente ?? '—'}
+            </td>
+            <td className="px-4 py-3 text-sm text-content-secondary font-mono">
+                {activity.prontuario}
             </td>
             <td className="px-4 py-3">
                 <Badge variant={variant} dot>{label}</Badge>
             </td>
-            <td className="px-4 py-3">
-                <div className="flex items-center gap-2">
-                    <div
-                        className="w-24 h-1.5 bg-surface-subtle  rounded-full overflow-hidden">
-                        <div
-                            className="h-full rounded-full bg-gradient-to-r from-teal-400 to-teal-500"
-                            style={{width: `${progress}%`}}
-                        />
-                    </div>
-                    <span className="text-xs text-content-secondary  whitespace-nowrap">
-            {activity.completedCount}/{activity.requiredCount}
-          </span>
-                </div>
+            {isProfessor && (
+                <td className="px-4 py-3 text-sm text-content-secondary">
+                    {activity.aluno.name}
+                </td>
+            )}
+            <td className="px-4 py-3 text-sm text-content-secondary">
+                {activity.professorOrientador.name}
             </td>
-            <td className="px-4 py-3 text-sm text-content-secondary ">
-                {activity.createdBy}
+            <td className="px-4 py-3 text-sm text-content-tertiary">
+                {activity.turma.name}
             </td>
-            <td className="px-4 py-3 text-sm text-content-tertiary ">
-                {new Date(activity.createdAt).toLocaleDateString('pt-BR')}
+            <td className="px-4 py-3 text-sm text-content-tertiary">
+                {new Date(activity.data + 'T00:00:00').toLocaleDateString('pt-BR')}
             </td>
         </tr>
     )
 }
 
-// ── Card de nova atividade ─────────────────────────────────────────
-function NewActivityCard({onClick}: { onClick: () => void }) {
+// ── Botão nova atividade ────────────────────────────────────────────
+
+function NewActivityCard({ onClick }: { onClick: () => void }) {
     return (
         <button
             onClick={onClick}
             className={cn(
                 'w-full text-left',
-                'bg-teal-50 ',
-                'border-2 border-dashed border-teal-200 ',
+                'bg-teal-50 border-2 border-dashed border-teal-200',
                 'rounded-xl p-5 cursor-pointer',
-                'hover:bg-teal-100  hover:border-teal-300',
+                'hover:bg-teal-100 hover:border-teal-300',
                 'transition-all duration-150 group',
             )}
         >
             <div className="flex items-center gap-3">
-                <div
-                    className="w-8 h-8 rounded-md bg-teal-500 text-white flex items-center justify-center text-lg font-light group-hover:scale-110 transition-transform">
+                <div className="w-8 h-8 rounded-md bg-teal-500 text-white flex items-center justify-center text-lg font-light group-hover:scale-110 transition-transform">
                     +
                 </div>
                 <div>
-                    <p className="text-sm font-semibold text-teal-700 ">Nova atividade</p>
-                    <p className="text-xs text-teal-600/70 ">Clique para criar uma atividade
-                        clínica</p>
+                    <p className="text-sm font-semibold text-teal-700">Nova atividade</p>
+                    <p className="text-xs text-teal-600/70">Clique para registrar uma atividade clínica</p>
                 </div>
             </div>
         </button>
     )
 }
 
-// ── Página principal ───────────────────────────────────────────────
-export default function AtividadesPage() {
-    const [view, setView] = useState<'cards' | 'lista'>('cards')
+// ── Conteúdo principal (usa useSearchParams) ────────────────────────
+
+function AtividadesContent() {
+    const [view, setView]           = useState<'cards' | 'lista'>('cards')
     const [modalOpen, setModalOpen] = useState(false)
-    const [atividades, setAtividades] = useState<Activity[]>(mockAtividades)
-    const {user} = useAuth()
+    const [atividades, setAtividades] = useState<AtividadeResponseDTO[]>([])
+    const [loading, setLoading]     = useState(true)
+    const [error, setError]         = useState<string | null>(null)
+
+    const { user } = useAuth()
     const isProfessor = user?.role === 'PROFESSOR'
 
-    function handleSave(data: { title: string; description: string; deadline: string }) {
-        const nova: Activity = {
-            id: String(Date.now()),
-            title: data.title,
-            description: data.description,
-            requiredCount: 1,
-            completedCount: 0,
-            status: 'PENDENTE',
-            createdBy: 'Prof. Dr. João Silva',
-            createdAt: new Date().toISOString().split('T')[0],
+    const searchParams = useSearchParams()
+    const statusFilter = searchParams.get('status') as AtividadeStatus | null
+
+    useEffect(() => {
+        if (!user) return
+
+        async function load() {
+            try {
+                setLoading(true)
+                setError(null)
+                const page = user.role === 'PROFESSOR'
+                    ? await listAtividades()
+                    : await listMinhasAtividades()
+                setAtividades(page.content)
+            } catch {
+                setError('Não foi possível carregar as atividades. Verifique sua conexão.')
+            } finally {
+                setLoading(false)
+            }
         }
-        setAtividades((prev) => [nova, ...prev])
+        load()
+    }, [user])
+
+    const displayed = statusFilter
+        ? atividades.filter(a => a.status === statusFilter)
+        : atividades
+
+    function handleSave(nova: AtividadeResponseDTO) {
+        setAtividades(prev => [nova, ...prev])
     }
 
     return (
@@ -181,26 +212,21 @@ export default function AtividadesPage() {
             {/* Header */}
             <div className="flex items-end justify-between mb-6">
                 <div>
-                    <p className="text-sm text-content-secondary mb-1">
-                        Gestão
-                    </p>
-                    <h1 className="font-serif text-3xl text-content-primary">
-                        Atividades
-                    </h1>
+                    <p className="text-sm text-content-secondary mb-1">Gestão</p>
+                    <h1 className="font-serif text-3xl text-content-primary">Atividades</h1>
                 </div>
 
-                {/* Toggle cards / lista */}
                 <div className="flex items-center gap-1 bg-surface-subtle rounded-lg p-1">
                     <button
                         onClick={() => setView('cards')}
                         className={cn(
                             'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
                             view === 'cards'
-                                ? 'bg-surface-default  text-content-primary shadow-xs'
+                                ? 'bg-surface-default text-content-primary shadow-xs'
                                 : 'text-content-tertiary hover:text-content-secondary',
                         )}
                     >
-                        <IconGrid/> Cards
+                        <IconGrid /> Cards
                     </button>
                     <button
                         onClick={() => setView('lista')}
@@ -211,82 +237,94 @@ export default function AtividadesPage() {
                                 : 'text-content-tertiary hover:text-content-secondary',
                         )}
                     >
-                        <IconList/> Lista
+                        <IconList /> Lista
                     </button>
                 </div>
             </div>
 
-            {/* Visualização Cards */}
-            {view === 'cards' && (
+            {/* Loading */}
+            {loading && (
+                <div className="flex items-center justify-center py-20 text-content-secondary text-sm">
+                    Carregando atividades...
+                </div>
+            )}
+
+            {/* Erro */}
+            {!loading && error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-sm text-red-700">
+                    {error}
+                </div>
+            )}
+
+            {/* Cards */}
+            {!loading && !error && view === 'cards' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {isProfessor && (
-                    <NewActivityCard onClick={() => setModalOpen(true)}/>
+                    <NewActivityCard onClick={() => setModalOpen(true)} />
+                    {displayed.length === 0 && (
+                        <p className="col-span-full text-sm text-content-tertiary py-4">
+                            Nenhuma atividade encontrada.
+                        </p>
                     )}
-                    {atividades.map((a) => (
-                        <ActivityCard key={a.id} activity={a} onClick={() => {
-                        }}/>
+                    {displayed.map(a => (
+                        <ActivityCard key={a.id} activity={a} isProfessor={isProfessor} onClick={() => {}} />
                     ))}
                 </div>
             )}
 
-            {/* Visualização Lista */}
-            {view === 'lista' && (
-                <div
-                    className="bg-surface-default border-border-subtle rounded-xl overflow-hidden shadow-xs">
-                    {/* Linha de nova atividade */}
-                    <div className="px-4 py-3 border-b border-border-subtle ">
+            {/* Lista */}
+            {!loading && !error && view === 'lista' && (
+                <div className="bg-surface-default border border-border-subtle rounded-xl overflow-hidden shadow-xs">
+                    <div className="px-4 py-3 border-b border-border-subtle">
                         <button
                             onClick={() => setModalOpen(true)}
-                            className="flex items-center gap-2 text-sm text-teal-600  font-medium hover:text-teal-700 transition-colors"
+                            className="flex items-center gap-2 text-sm text-teal-600 font-medium hover:text-teal-700 transition-colors"
                         >
-                            <span
-                                className="w-5 h-5 rounded bg-teal-500 text-white flex items-center justify-center text-base leading-none">+</span>
+                            <span className="w-5 h-5 rounded bg-teal-500 text-white flex items-center justify-center text-base leading-none">+</span>
                             Nova atividade
                         </button>
                     </div>
-                    {isProfessor && (
-                        <NewActivityModal
-                        open={modalOpen}
-                        onClose={() => setModalOpen(false)}
-                        onSave={handleSave}
-                        />
-                    )}
                     <table className="w-full border-collapse text-sm">
                         <thead>
-                        <tr className="bg-surface-subtle ">
-                            <th className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle ">
-                                Título
-                            </th>
-                            <th className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary  border-b border-border-subtle ">
-                                Status
-                            </th>
-                            <th className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary  border-b border-border-subtle ">
-                                Progresso
-                            </th>
-                            <th className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle ">
-                                Professor
-                            </th>
-                            <th className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle ">
-                                Data
-                            </th>
-                        </tr>
+                            <tr className="bg-surface-subtle">
+                                {['Paciente', 'Prontuário', 'Status', ...(isProfessor ? ['Aluno'] : []), 'Professor', 'Turma', 'Data'].map(col => (
+                                    <th key={col} className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle">
+                                        {col}
+                                    </th>
+                                ))}
+                            </tr>
                         </thead>
                         <tbody>
-                        {atividades.map((a) => (
-                            <ActivityRow key={a.id} activity={a} onClick={() => {
-                            }}/>
-                        ))}
+                            {displayed.length === 0 && (
+                                <tr>
+                                    <td colSpan={isProfessor ? 7 : 6} className="px-4 py-8 text-center text-sm text-content-tertiary">
+                                        Nenhuma atividade encontrada.
+                                    </td>
+                                </tr>
+                            )}
+                            {displayed.map(a => (
+                                <ActivityRow key={a.id} activity={a} isProfessor={isProfessor} onClick={() => {}} />
+                            ))}
                         </tbody>
                     </table>
                 </div>
             )}
 
-            {/* Modal */}
-            <NovaAtividadeModal
+            <NewActivityModal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
                 onSave={handleSave}
+                role={user?.role ?? 'ALUNO'}
             />
         </div>
+    )
+}
+
+// ── Página exportada com Suspense (requerido pelo useSearchParams) ──
+
+export default function AtividadesPage() {
+    return (
+        <Suspense fallback={null}>
+            <AtividadesContent />
+        </Suspense>
     )
 }

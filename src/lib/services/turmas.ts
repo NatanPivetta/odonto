@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { Turma } from '@/types'
+import type { Turma, Page } from '@/types'
 
 export interface CreateTurmaRequest {
     disciplina: string  // max 20
@@ -12,14 +12,6 @@ export interface UpdateTurmaRequest {
     name?: string
     semester?: string
     active?: boolean
-}
-
-export interface Page<T> {
-    content: T[]
-    totalElements: number
-    totalPages: number
-    number: number
-    size: number
 }
 
 export function createTurma(data: CreateTurmaRequest) {
