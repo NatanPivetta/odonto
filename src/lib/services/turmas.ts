@@ -45,3 +45,11 @@ export function addAlunoToTurma(turmaId: number, alunoId: number) {
 export function removeAlunoFromTurma(turmaId: number, alunoId: number) {
     return api.delete(`/v1/turmas/${turmaId}/alunos/${alunoId}`)
 }
+
+export function addAlunosBulk(turmaId: number, alunoIds: number[]) {
+    return api.post<Turma>(`/v1/turmas/${turmaId}/alunos/bulk`, { alunoIds })
+}
+
+export function removeAlunosBulk(turmaId: number, alunoIds: number[]) {
+    return api.delete<void>(`/v1/turmas/${turmaId}/alunos/bulk`, { alunoIds })
+}

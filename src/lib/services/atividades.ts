@@ -1,10 +1,14 @@
 import { api } from '@/lib/api'
-import type { AtividadeResponseDTO, AtividadeStatus, Page } from '@/types'
+import type { AtividadeResponseDTO, AtividadeStatus, TipoAtividade, Page } from '@/types'
 
 export interface ListAtividadesParams {
     alunoId?: number
     turmaId?: number
     atividadePaiId?: number
+    professorOrientadorId?: number
+    professorTutorId?: number
+    tipo?: TipoAtividade
+    status?: AtividadeStatus
     page?: number
     size?: number
     sort?: string
@@ -18,6 +22,8 @@ export interface CreateAtividadeProfessorRequest {
     nomePaciente?: string | null
     observacoes?: string | null
     status: AtividadeStatus
+    tipo: TipoAtividade
+    tipoDescricao?: string | null
     alunoId: number
     professorOrientadorId: number
     professorTutorId?: number | null
@@ -32,6 +38,8 @@ export interface CreateAtividadeAlunoRequest {
     nomePaciente?: string | null
     observacoes?: string | null
     status?: AtividadeStatus
+    tipo: TipoAtividade
+    tipoDescricao?: string | null
     professorOrientadorId: number
     professorTutorId?: number | null
     atividadePaiId?: number | null
@@ -43,7 +51,8 @@ export interface UpdateAtividadeProfessorRequest {
     prontuario?: string | null
     nomePaciente?: string | null
     observacoes?: string | null
-    feedbackPrivado?: string | null
+    tipo?: TipoAtividade | null
+    tipoDescricao?: string | null
     professorOrientadorId?: number | null
     professorTutorId?: number | null
 }
@@ -54,6 +63,9 @@ export interface UpdateAtividadeAlunoRequest {
     prontuario?: string | null
     nomePaciente?: string | null
     observacoes?: string | null
+    tipo?: TipoAtividade | null
+    tipoDescricao?: string | null
+    professorTutorId?: number | null
 }
 
 function buildQuery(params: Record<string, string | number | boolean | undefined>): string {
@@ -73,16 +85,21 @@ export function listAtividades(params?: ListAtividadesParams) {
         ...(params?.alunoId !== undefined ? { alunoId: params.alunoId } : {}),
         ...(params?.turmaId !== undefined ? { turmaId: params.turmaId } : {}),
         ...(params?.atividadePaiId !== undefined ? { atividadePaiId: params.atividadePaiId } : {}),
+        ...(params?.professorOrientadorId !== undefined ? { professorOrientadorId: params.professorOrientadorId } : {}),
+        ...(params?.professorTutorId !== undefined ? { professorTutorId: params.professorTutorId } : {}),
+        ...(params?.tipo !== undefined ? { tipo: params.tipo } : {}),
+        ...(params?.status !== undefined ? { status: params.status } : {}),
     })
     return api.get<Page<AtividadeResponseDTO>>(`/v1/atividades?${query}`)
 }
 
-export function listMinhasAtividades(params?: { page?: number; size?: number; sort?: string; direction?: 'ASC' | 'DESC' }) {
+export function listMinhasAtividades(params?: { page?: number; size?: number; sort?: string; direction?: 'ASC' | 'DESC'; tipo?: TipoAtividade }) {
     const query = buildQuery({
         page: params?.page ?? 0,
         size: params?.size ?? 20,
         sort: params?.sort ?? 'data',
         direction: params?.direction ?? 'DESC',
+        ...(params?.tipo !== undefined ? { tipo: params.tipo } : {}),
     })
     return api.get<Page<AtividadeResponseDTO>>(`/v1/atividades/minhas?${query}`)
 }

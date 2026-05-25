@@ -3,23 +3,43 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { getTurmaById, addAlunoToTurma, removeAlunoFromTurma } from '@/lib/services/turmas'
+import {
+    getTurmaById,
+    addAlunoToTurma,
+    removeAlunoFromTurma,
+    addAlunosBulk,
+    removeAlunosBulk,
+} from '@/lib/services/turmas'
 import { createUser, listAlunos } from '@/lib/services/users'
 import { ApiError } from '@/lib/api'
 import type { Turma, UserResponse } from '@/types'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 
-// ── Modal de adicionar aluno ───────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────
+
+function initials(name: string) {
+    return name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase()
+}
+
+function Avatar({ name }: { name: string }) {
+    return (
+        <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 text-xs font-semibold flex items-center justify-center shrink-0">
+            {initials(name)}
+        </div>
+    )
+}
+
+// ── Modal de adicionar alunos (multi-select) ───────────────────────
 
 type Tab = 'existente' | 'novo'
 
 interface AdicionarAlunoModalProps {
     open: boolean
     onClose: () => void
-    onAdded: (aluno: UserResponse) => void
+    onAdded: (alunos: UserResponse[]) => void
     turmaId: number
-    alunosJaMatriculados: number[]   // ids já na turma, para desabilitar na lista
+    alunosJaMatriculados: number[]
 }
 
 function AdicionarAlunoModal({
@@ -28,22 +48,21 @@ function AdicionarAlunoModal({
     const [tab, setTab] = useState<Tab>('existente')
 
     // ── aba existente ──────────────────────────────────────────────
-    const [alunos, setAlunos] = useState<UserResponse[]>([])
+    const [alunos, setAlunos]               = useState<UserResponse[]>([])
     const [loadingAlunos, setLoadingAlunos] = useState(false)
-    const [busca, setBusca] = useState('')
-    const [selecionado, setSelecionado] = useState<UserResponse | null>(null)
-    const [adicionando, setAdicionando] = useState(false)
-    const [erroAba, setErroAba] = useState<string | null>(null)
+    const [busca, setBusca]                 = useState('')
+    const [selecionados, setSelecionados]   = useState<Set<number>>(new Set())
+    const [adicionando, setAdicionando]     = useState(false)
+    const [erroAba, setErroAba]             = useState<string | null>(null)
 
     // ── aba novo ──────────────────────────────────────────────────
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
+    const [name, setName]         = useState('')
+    const [email, setEmail]       = useState('')
     const [cardNumber, setCardNumber] = useState('')
     const [password, setPassword] = useState('')
-    const [criando, setCriando] = useState(false)
+    const [criando, setCriando]   = useState(false)
     const [erroNovo, setErroNovo] = useState<string | null>(null)
 
-    // Busca alunos ativos ao abrir o modal
     useEffect(() => {
         if (!open) return
         setLoadingAlunos(true)
@@ -57,22 +76,15 @@ function AdicionarAlunoModal({
     function resetAll() {
         setTab('existente')
         setBusca('')
-        setSelecionado(null)
+        setSelecionados(new Set())
         setErroAba(null)
-        setName('')
-        setEmail('')
-        setCardNumber('')
-        setPassword('')
+        setName(''); setEmail(''); setCardNumber(''); setPassword('')
         setErroNovo(null)
     }
 
-    function handleClose() {
-        resetAll()
-        onClose()
-    }
+    function handleClose() { resetAll(); onClose() }
 
-    // Filtra pelo texto de busca (nome, email ou cartão)
-    const alunosFiltrados = useMemo(() => {
+    const disponiveis = useMemo(() => {
         const q = busca.toLowerCase()
         return alunos.filter(
             (a) =>
@@ -82,19 +94,39 @@ function AdicionarAlunoModal({
         )
     }, [alunos, busca])
 
-    async function handleAdicionarExistente() {
-        if (!selecionado) return
+    function toggleAluno(id: number) {
+        setSelecionados((prev) => {
+            const next = new Set(prev)
+            next.has(id) ? next.delete(id) : next.add(id)
+            return next
+        })
+    }
+
+    function toggleAll() {
+        const elegíveis = disponiveis.filter((a) => !alunosJaMatriculados.includes(a.id))
+        const allSelected = elegíveis.every((a) => selecionados.has(a.id))
+        setSelecionados(allSelected ? new Set() : new Set(elegíveis.map((a) => a.id)))
+    }
+
+    async function handleAdicionarSelecionados() {
+        if (selecionados.size === 0) return
         setAdicionando(true)
         setErroAba(null)
         try {
-            await addAlunoToTurma(turmaId, selecionado.id)
+            const ids = [...selecionados]
+            if (ids.length === 1) {
+                await addAlunoToTurma(turmaId, ids[0])
+            } else {
+                await addAlunosBulk(turmaId, ids)
+            }
+            const novos = alunos.filter((a) => selecionados.has(a.id))
             resetAll()
-            onAdded(selecionado)
+            onAdded(novos)
         } catch (err) {
             setErroAba(
                 err instanceof ApiError && err.status === 400
-                    ? 'Aluno já matriculado nesta turma.'
-                    : 'Erro ao matricular aluno.',
+                    ? 'Um ou mais alunos já estão matriculados nesta turma.'
+                    : 'Erro ao matricular alunos.',
             )
         } finally {
             setAdicionando(false)
@@ -109,7 +141,7 @@ function AdicionarAlunoModal({
             const aluno = await createUser({ name, email, cardNumber, password, role: 'ALUNO' })
             await addAlunoToTurma(turmaId, aluno.id)
             resetAll()
-            onAdded(aluno)
+            onAdded([aluno])
         } catch (err) {
             if (err instanceof ApiError) {
                 setErroNovo(
@@ -127,6 +159,9 @@ function AdicionarAlunoModal({
 
     if (!open) return null
 
+    const elegíveisVisiveis = disponiveis.filter((a) => !alunosJaMatriculados.includes(a.id))
+    const allVisiblesSelected = elegíveisVisiveis.length > 0 && elegíveisVisiveis.every((a) => selecionados.has(a.id))
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={handleClose}>
             <div className="absolute inset-0 bg-content-primary/40 backdrop-blur-sm" />
@@ -140,9 +175,9 @@ function AdicionarAlunoModal({
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
                     <div>
-                        <h2 className="font-serif text-xl text-content-primary">Adicionar Aluno</h2>
+                        <h2 className="font-serif text-xl text-content-primary">Adicionar Alunos</h2>
                         <p className="text-xs text-content-tertiary mt-0.5">
-                            Selecione um aluno existente ou crie um novo cadastro
+                            Selecione um ou mais alunos, ou crie um novo cadastro
                         </p>
                     </div>
                     <button
@@ -166,7 +201,7 @@ function AdicionarAlunoModal({
                                     : 'border-transparent text-content-tertiary hover:text-content-secondary',
                             )}
                         >
-                            {t === 'existente' ? 'Aluno existente' : 'Criar novo aluno'}
+                            {t === 'existente' ? 'Alunos existentes' : 'Criar novo aluno'}
                         </button>
                     ))}
                 </div>
@@ -174,45 +209,52 @@ function AdicionarAlunoModal({
                 {/* Aba: existente */}
                 {tab === 'existente' && (
                     <div className="px-6 py-5 flex flex-col gap-4">
-                        <Input
-                            placeholder="Buscar por nome, e-mail ou cartão..."
-                            value={busca}
-                            onChange={(e) => { setBusca(e.target.value); setSelecionado(null) }}
-                        />
+                        <div className="flex items-center gap-2">
+                            <Input
+                                placeholder="Buscar por nome, e-mail ou cartão..."
+                                value={busca}
+                                onChange={(e) => setBusca(e.target.value)}
+                                className="flex-1"
+                            />
+                            {elegíveisVisiveis.length > 0 && (
+                                <button
+                                    onClick={toggleAll}
+                                    className="shrink-0 text-xs font-medium text-teal-600 hover:text-teal-700 whitespace-nowrap transition-colors"
+                                >
+                                    {allVisiblesSelected ? 'Desmarcar todos' : 'Selecionar todos'}
+                                </button>
+                            )}
+                        </div>
 
-                        <div className="border border-border-subtle rounded-lg overflow-hidden max-h-56 overflow-y-auto">
+                        <div className="border border-border-subtle rounded-lg overflow-hidden max-h-64 overflow-y-auto">
                             {loadingAlunos ? (
                                 <div className="p-4 space-y-2">
                                     {[...Array(3)].map((_, i) => (
                                         <div key={i} className="h-10 bg-surface-subtle rounded animate-pulse" />
                                     ))}
                                 </div>
-                            ) : alunosFiltrados.length === 0 ? (
+                            ) : disponiveis.length === 0 ? (
                                 <p className="px-4 py-6 text-center text-sm text-content-tertiary">
                                     {busca ? 'Nenhum aluno encontrado.' : 'Nenhum aluno ativo cadastrado.'}
                                 </p>
                             ) : (
-                                alunosFiltrados.map((aluno) => {
+                                disponiveis.map((aluno) => {
                                     const jaMatriculado = alunosJaMatriculados.includes(aluno.id)
-                                    const selected = selecionado?.id === aluno.id
-                                    const initials = aluno.name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase()
+                                    const checked = selecionados.has(aluno.id)
                                     return (
-                                        <button
+                                        <div
                                             key={aluno.id}
-                                            disabled={jaMatriculado}
-                                            onClick={() => setSelecionado(aluno)}
+                                            onClick={() => !jaMatriculado && toggleAluno(aluno.id)}
                                             className={cn(
-                                                'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b border-border-subtle last:border-0',
+                                                'w-full flex items-center gap-3 px-4 py-3 border-b border-border-subtle last:border-0 transition-colors',
                                                 jaMatriculado
                                                     ? 'opacity-40 cursor-not-allowed bg-surface-subtle'
-                                                    : selected
-                                                        ? 'bg-teal-50'
-                                                        : 'hover:bg-surface-subtle',
+                                                    : checked
+                                                        ? 'bg-teal-500/10 cursor-pointer'
+                                                        : 'hover:bg-teal-500/5 cursor-pointer',
                                             )}
                                         >
-                                            <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 text-xs font-semibold flex items-center justify-center shrink-0">
-                                                {initials}
-                                            </div>
+                                            <Avatar name={aluno.name} />
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-content-primary truncate">{aluno.name}</p>
                                                 <p className="text-xs text-content-tertiary truncate">{aluno.email}</p>
@@ -221,10 +263,10 @@ function AdicionarAlunoModal({
                                             {jaMatriculado && (
                                                 <span className="text-[10px] text-content-tertiary shrink-0">já matriculado</span>
                                             )}
-                                            {selected && (
+                                            {checked && (
                                                 <span className="text-teal-500 shrink-0">✓</span>
                                             )}
-                                        </button>
+                                        </div>
                                     )
                                 })
                             )}
@@ -232,15 +274,22 @@ function AdicionarAlunoModal({
 
                         {erroAba && <p className="text-xs text-red-600">{erroAba}</p>}
 
-                        <div className="flex justify-end gap-3 pt-2 border-t border-border-subtle mt-1">
-                            <Button type="button" variant="ghost" onClick={handleClose}>Cancelar</Button>
-                            <Button
-                                onClick={handleAdicionarExistente}
-                                disabled={!selecionado}
-                                loading={adicionando}
-                            >
-                                Matricular aluno
-                            </Button>
+                        <div className="flex justify-between items-center pt-2 border-t border-border-subtle mt-1">
+                            <span className="text-xs text-content-tertiary">
+                                {selecionados.size > 0
+                                    ? `${selecionados.size} aluno${selecionados.size > 1 ? 's' : ''} selecionado${selecionados.size > 1 ? 's' : ''}`
+                                    : 'Nenhum aluno selecionado'}
+                            </span>
+                            <div className="flex gap-3">
+                                <Button type="button" variant="ghost" onClick={handleClose}>Cancelar</Button>
+                                <Button
+                                    onClick={handleAdicionarSelecionados}
+                                    disabled={selecionados.size === 0}
+                                    loading={adicionando}
+                                >
+                                    Matricular{selecionados.size > 1 ? ` ${selecionados.size} alunos` : ' aluno'}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -300,56 +349,165 @@ function AdicionarAlunoModal({
     )
 }
 
-// ── Linha de aluno ─────────────────────────────────────────────────
+// ── Tabela de alunos com seleção para remoção em lote ─────────────
 
-function AlunoRow({ aluno, onRemove }: { aluno: UserResponse; onRemove: () => void }) {
-    const [removing, setRemoving] = useState(false)
+function AlunosTable({
+    alunos, turmaId, onRemoved,
+}: {
+    alunos: UserResponse[]
+    turmaId: number
+    onRemoved: (ids: number[]) => void
+}) {
+    const [selecionados, setSelecionados] = useState<Set<number>>(new Set())
+    const [removendo, setRemoving]        = useState(false)
+    const [erroRemocao, setErroRemocao]   = useState<string | null>(null)
 
-    async function handleRemove() {
-        setRemoving(true)
-        await onRemove()
-        setRemoving(false)
+    const allSelected = alunos.length > 0 && alunos.every((a) => selecionados.has(a.id))
+
+    function toggleAluno(id: number) {
+        setSelecionados((prev) => {
+            const next = new Set(prev)
+            next.has(id) ? next.delete(id) : next.add(id)
+            return next
+        })
     }
 
-    const initials = aluno.name
-        .split(' ')
-        .slice(0, 2)
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
+    function toggleAll() {
+        setSelecionados(allSelected ? new Set() : new Set(alunos.map((a) => a.id)))
+    }
+
+    async function handleRemoverSelecionados() {
+        if (selecionados.size === 0) return
+        setRemoving(true)
+        setErroRemocao(null)
+        try {
+            const ids = [...selecionados]
+            if (ids.length === 1) {
+                await removeAlunoFromTurma(turmaId, ids[0])
+            } else {
+                await removeAlunosBulk(turmaId, ids)
+            }
+            setSelecionados(new Set())
+            onRemoved(ids)
+        } catch {
+            setErroRemocao('Erro ao remover alunos. Tente novamente.')
+        } finally {
+            setRemoving(false)
+        }
+    }
+
+    if (alunos.length === 0) {
+        return (
+            <div className="px-6 py-12 text-center">
+                <p className="text-sm text-content-secondary mb-1">Nenhum aluno matriculado</p>
+                <p className="text-xs text-content-tertiary">
+                    Clique em &quot;Adicionar alunos&quot; para matricular o primeiro aluno nesta turma.
+                </p>
+            </div>
+        )
+    }
 
     return (
-        <tr className="hover:bg-surface-subtle transition-colors">
-            <td className="px-4 py-3">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 text-xs font-semibold flex items-center justify-center shrink-0">
-                        {initials}
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-content-primary">{aluno.name}</p>
-                        <p className="text-xs text-content-tertiary">{aluno.email}</p>
+        <div>
+            {/* Barra de ação em lote */}
+            {selecionados.size > 0 && (
+                <div className="flex items-center justify-between px-4 py-2.5 bg-teal-500/10 border-b border-teal-500/20">
+                    <span className="text-xs font-medium text-teal-700">
+                        {selecionados.size} aluno{selecionados.size > 1 ? 's' : ''} selecionado{selecionados.size > 1 ? 's' : ''}
+                    </span>
+                    <div className="flex items-center gap-3">
+                        {erroRemocao && <span className="text-xs text-red-600">{erroRemocao}</span>}
+                        <button
+                            onClick={() => setSelecionados(new Set())}
+                            className="text-xs text-teal-600 hover:text-teal-700 transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <Button variant="danger" size="sm" loading={removendo} onClick={handleRemoverSelecionados}>
+                            Remover {selecionados.size > 1 ? `${selecionados.size} alunos` : 'aluno'}
+                        </Button>
                     </div>
                 </div>
-            </td>
-            <td className="px-4 py-3 text-sm text-content-secondary font-mono">
-                {aluno.cardNumber}
-            </td>
-            <td className="px-4 py-3">
-                <span className={cn(
-                    'inline-block px-2 py-0.5 rounded text-[11px] font-medium',
-                    aluno.active
-                        ? 'bg-green-50 text-green-700'
-                        : 'bg-surface-subtle text-content-tertiary',
-                )}>
-                    {aluno.active ? 'Ativo' : 'Inativo'}
-                </span>
-            </td>
-            <td className="px-4 py-3 text-right">
-                <Button variant="danger" size="sm" loading={removing} onClick={handleRemove}>
-                    Remover
-                </Button>
-            </td>
-        </tr>
+            )}
+
+            <table className="w-full border-collapse text-sm">
+                <thead>
+                    <tr className="bg-surface-subtle">
+                        <th className="px-4 py-2.5 border-b border-border-subtle w-10">
+                            <input
+                                type="checkbox"
+                                checked={allSelected}
+                                onChange={toggleAll}
+                                className="w-4 h-4 rounded accent-teal-500"
+                            />
+                        </th>
+                        <th className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle">
+                            Aluno
+                        </th>
+                        <th className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle">
+                            Cartão
+                        </th>
+                        <th className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle">
+                            Status
+                        </th>
+                        <th className="border-b border-border-subtle" />
+                    </tr>
+                </thead>
+                <tbody>
+                    {alunos.map((aluno) => {
+                        const checked = selecionados.has(aluno.id)
+                        return (
+                            <tr
+                                key={aluno.id}
+                                className={cn(
+                                    'transition-colors',
+                                    checked ? 'bg-teal-500/10' : 'hover:bg-teal-500/5',
+                                )}
+                            >
+                                <td className="px-4 py-3">
+                                    <input
+                                        type="checkbox"
+                                        checked={checked}
+                                        onChange={() => toggleAluno(aluno.id)}
+                                        className="w-4 h-4 rounded accent-teal-500"
+                                    />
+                                </td>
+                                <td className="px-4 py-3">
+                                    <div className="flex items-center gap-3">
+                                        <Avatar name={aluno.name} />
+                                        <div>
+                                            <p className="text-sm font-medium text-content-primary">{aluno.name}</p>
+                                            <p className="text-xs text-content-tertiary">{aluno.email}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-4 py-3 text-sm text-content-secondary font-mono">
+                                    {aluno.cardNumber}
+                                </td>
+                                <td className="px-4 py-3">
+                                    <span className={cn(
+                                        'inline-block px-2 py-0.5 rounded text-[11px] font-medium',
+                                        aluno.active
+                                            ? 'bg-green-50 text-green-700'
+                                            : 'bg-surface-subtle text-content-tertiary',
+                                    )}>
+                                        {aluno.active ? 'Ativo' : 'Inativo'}
+                                    </span>
+                                </td>
+                                <td className="px-4 py-3 text-right">
+                                    <button
+                                        onClick={() => toggleAluno(aluno.id)}
+                                        className="text-xs text-content-tertiary hover:text-red-500 transition-colors"
+                                    >
+                                        {checked ? 'Desmarcar' : 'Selecionar'}
+                                    </button>
+                                </td>
+                            </tr>
+                        )
+                    })}
+                </tbody>
+            </table>
+        </div>
     )
 }
 
@@ -360,9 +518,9 @@ export default function TurmaDetailPage() {
     const router = useRouter()
     const turmaId = Number(id)
 
-    const [turma, setTurma] = useState<Turma | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
+    const [turma, setTurma]       = useState<Turma | null>(null)
+    const [loading, setLoading]   = useState(true)
+    const [error, setError]       = useState<string | null>(null)
     const [modalOpen, setModalOpen] = useState(false)
 
     const fetchTurma = useCallback(async () => {
@@ -379,20 +537,16 @@ export default function TurmaDetailPage() {
 
     useEffect(() => { fetchTurma() }, [fetchTurma])
 
-    function handleAlunoAdded(aluno: UserResponse) {
-        setTurma((prev) => prev ? { ...prev, alunos: [...prev.alunos, aluno] } : prev)
+    function handleAlunosAdded(novos: UserResponse[]) {
+        setTurma((prev) => prev ? { ...prev, alunos: [...prev.alunos, ...novos] } : prev)
         setModalOpen(false)
     }
 
-    async function handleRemoveAluno(alunoId: number) {
-        try {
-            await removeAlunoFromTurma(turmaId, alunoId)
-            setTurma((prev) =>
-                prev ? { ...prev, alunos: prev.alunos.filter((a) => a.id !== alunoId) } : prev,
-            )
-        } catch {
-            // mantém a linha — o usuário verá que nada mudou
-        }
+    function handleAlunosRemoved(ids: number[]) {
+        const removed = new Set(ids)
+        setTurma((prev) =>
+            prev ? { ...prev, alunos: prev.alunos.filter((a) => !removed.has(a.id)) } : prev,
+        )
     }
 
     if (loading) {
@@ -437,53 +591,29 @@ export default function TurmaDetailPage() {
                             <span className="text-xs text-content-tertiary">{turma.semester}</span>
                         </div>
                         <h1 className="font-serif text-3xl text-content-primary">{turma.name}</h1>
+                        {turma.alunos.length > 0 && (
+                            <p className="text-sm text-content-tertiary mt-1">
+                                {turma.alunos.length} aluno{turma.alunos.length > 1 ? 's' : ''} matriculado{turma.alunos.length > 1 ? 's' : ''}
+                            </p>
+                        )}
                     </div>
-                    <Button onClick={() => setModalOpen(true)}>+ Adicionar aluno</Button>
+                    <Button onClick={() => setModalOpen(true)}>+ Adicionar alunos</Button>
                 </div>
             </div>
 
-            {/* Tabela de alunos */}
+            {/* Tabela */}
             <div className="bg-surface-default border border-border-subtle rounded-xl overflow-hidden shadow-xs">
-                {turma.alunos.length === 0 ? (
-                    <div className="px-6 py-12 text-center">
-                        <p className="text-sm text-content-secondary mb-1">Nenhum aluno matriculado</p>
-                        <p className="text-xs text-content-tertiary">
-                            Clique em &quot;Adicionar aluno&quot; para matricular o primeiro aluno nesta turma.
-                        </p>
-                    </div>
-                ) : (
-                    <table className="w-full border-collapse text-sm">
-                        <thead>
-                            <tr className="bg-surface-subtle">
-                                <th className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle">
-                                    Aluno
-                                </th>
-                                <th className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle">
-                                    Cartão
-                                </th>
-                                <th className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle">
-                                    Status
-                                </th>
-                                <th className="border-b border-border-subtle" />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {turma.alunos.map((aluno) => (
-                                <AlunoRow
-                                    key={aluno.id}
-                                    aluno={aluno}
-                                    onRemove={() => handleRemoveAluno(aluno.id)}
-                                />
-                            ))}
-                        </tbody>
-                    </table>
-                )}
+                <AlunosTable
+                    alunos={turma.alunos}
+                    turmaId={turmaId}
+                    onRemoved={handleAlunosRemoved}
+                />
             </div>
 
             <AdicionarAlunoModal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
-                onAdded={handleAlunoAdded}
+                onAdded={handleAlunosAdded}
                 turmaId={turmaId}
                 alunosJaMatriculados={alunosIds}
             />

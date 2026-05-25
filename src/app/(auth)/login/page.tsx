@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -85,7 +86,14 @@ export default function LoginPage() {
                     </form>
                 </div>
 
-                <p className="text-center text-xs text-content-tertiary mt-6">
+                <p className="text-center text-xs text-content-tertiary mt-4">
+                    Primeiro acesso?{' '}
+                    <Link href="/primeiro-acesso" className="text-teal-600 hover:text-teal-700 transition-colors">
+                        Crie sua conta
+                    </Link>
+                </p>
+
+                <p className="text-center text-xs text-content-tertiary mt-3">
                     Faculdade de Odontologia · UFRGS
                 </p>
             </div>

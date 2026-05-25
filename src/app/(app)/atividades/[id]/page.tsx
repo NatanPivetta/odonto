@@ -9,7 +9,7 @@ import Button from '@/components/ui/Button'
 import NewActivityModal from '@/components/ui/NewActivityModal'
 import EditActivityModal from '@/components/ui/EditActivityModal'
 import { useAuth } from '@/lib/auth'
-import { getAtividadeById, listAtividades, listMinhasAtividades, deleteAtividade } from '@/lib/services/atividades'
+import { getAtividadeById, listAtividades, listMinhasAtividades, deleteAtividade, updateStatusAtividade } from '@/lib/services/atividades'
 import { listFeedbacks, createFeedback, deleteFeedback } from '@/lib/services/feedbacks'
 
 // ── Helpers ─────────────────────────────────────────────────────────
@@ -60,6 +60,8 @@ export default function AtividadeDetailPage() {
 
     const [novaFilhaOpen, setNovaFilhaOpen] = useState(false)
     const [editOpen, setEditOpen]           = useState(false)
+    const [concluding, setConcluding]       = useState(false)
+    const [registeringAlta, setRegisteringAlta] = useState(false)
     const [confirmDelete, setConfirmDelete] = useState(false)
     const [deleting, setDeleting]           = useState(false)
     const [deleteError, setDeleteError]     = useState<string | null>(null)
@@ -114,6 +116,32 @@ export default function AtividadeDetailPage() {
 
     function handleSaved(updated: AtividadeResponseDTO) {
         setAtividade(updated)
+    }
+
+    async function handleConcluir() {
+        if (!atividade) return
+        setConcluding(true)
+        try {
+            const updated = await updateStatusAtividade(atividade.id, 'CONCLUIDA')
+            setAtividade(updated)
+        } catch (err: any) {
+            setDeleteError(err?.message ?? 'Erro ao concluir atividade.')
+        } finally {
+            setConcluding(false)
+        }
+    }
+
+    async function handleRegistrarAlta() {
+        if (!atividade) return
+        setRegisteringAlta(true)
+        try {
+            const updated = await updateStatusAtividade(atividade.id, 'ALTA')
+            setAtividade(updated)
+        } catch (err: any) {
+            setDeleteError(err?.message ?? 'Erro ao registrar alta.')
+        } finally {
+            setRegisteringAlta(false)
+        }
     }
 
     async function handleDelete() {
@@ -218,6 +246,28 @@ export default function AtividadeDetailPage() {
                         <Button variant="ghost" size="sm" onClick={() => setEditOpen(true)}>
                             Editar
                         </Button>
+
+                        {atividade.status !== 'CONCLUIDA' && atividade.status !== 'ALTA' && (
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                loading={concluding}
+                                onClick={handleConcluir}
+                            >
+                                Concluir
+                            </Button>
+                        )}
+
+                        {isProfessor && atividade.status === 'CONCLUIDA' && (
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                loading={registeringAlta}
+                                onClick={handleRegistrarAlta}
+                            >
+                                Registrar alta
+                            </Button>
+                        )}
 
                         {isProfessor && !confirmDelete && (
                             <Button

@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
-import type { AtividadeResponseDTO, AtividadeStatus, UserResponse } from '@/types'
+import type { AtividadeResponseDTO, AtividadeStatus, TipoAtividade, UserResponse } from '@/types'
+import { TIPO_ATIVIDADE_OPTIONS } from '@/types'
 import type { Turma } from '@/types'
 import { createAtividadeProfessor, createAtividadeAluno } from '@/lib/services/atividades'
 import { listAlunos } from '@/lib/services/users'
 import { listTurmas } from '@/lib/services/turmas'
 import { listProfessores } from '@/lib/services/professores'
 import { useAuth } from '@/lib/auth'
+import ComboboxSelect from '@/components/ui/ComboboxSelect'
 
 interface NewActivityModalProps {
     open: boolean
@@ -38,10 +40,13 @@ export default function NewActivityModal({
     const [nomePaciente, setNomePaciente] = useState('')
     const [observacoes, setObservacoes]   = useState('')
     const [status, setStatus]             = useState<AtividadeStatus>('PENDENTE')
+    const [tipo, setTipo]                 = useState<TipoAtividade | ''>('')
+    const [tipoDescricao, setTipoDescricao] = useState('')
 
     const [alunoId, setAlunoId]                             = useState('')
     const [turmaId, setTurmaId]                             = useState('')
     const [professorOrientadorId, setProfessorOrientadorId] = useState('')
+    const [professorTutorId, setProfessorTutorId]           = useState('')
     const [alunos, setAlunos]                               = useState<UserResponse[]>([])
     const [turmas, setTurmas]                               = useState<Turma[]>([])
     const [professores, setProfessores]                     = useState<UserResponse[]>([])
@@ -96,9 +101,12 @@ export default function NewActivityModal({
         setNomePaciente('')
         setObservacoes('')
         setStatus('PENDENTE')
+        setTipo('')
+        setTipoDescricao('')
         setAlunoId('')
         setTurmaId('')
         setProfessorOrientadorId('')
+        setProfessorTutorId('')
         setProfessorIdAluno('')
         setError(null)
     }
@@ -115,6 +123,10 @@ export default function NewActivityModal({
         try {
             let result: AtividadeResponseDTO
 
+            if (!tipo) {
+                setError('Selecione o tipo de atividade.')
+                return
+            }
             if (role === 'PROFESSOR') {
                 result = await createAtividadeProfessor({
                     data,
@@ -123,8 +135,11 @@ export default function NewActivityModal({
                     nomePaciente: nomePaciente || null,
                     observacoes: observacoes || null,
                     status,
+                    tipo,
+                    tipoDescricao: tipo === 'OUTROS' ? tipoDescricao || null : null,
                     alunoId: Number(alunoId),
                     professorOrientadorId: Number(professorOrientadorId),
+                    professorTutorId: professorTutorId ? Number(professorTutorId) : null,
                     turmaId: Number(turmaId),
                     atividadePaiId: atividadePaiId ?? null,
                 })
@@ -136,7 +151,10 @@ export default function NewActivityModal({
                     nomePaciente: nomePaciente || null,
                     observacoes: observacoes || null,
                     status,
+                    tipo,
+                    tipoDescricao: tipo === 'OUTROS' ? tipoDescricao || null : null,
                     professorOrientadorId: Number(professorIdAluno),
+                    professorTutorId: professorTutorId ? Number(professorTutorId) : null,
                     atividadePaiId: atividadePaiId ?? null,
                 })
             }
@@ -260,32 +278,76 @@ export default function NewActivityModal({
                                     ))}
                                 </select>
                             </div>
+
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[13px] font-medium text-content-secondary tracking-[0.01em]">
+                                    Professor tutor
+                                </label>
+                                <select
+                                    value={professorTutorId}
+                                    onChange={e => setProfessorTutorId(e.target.value)}
+                                    className={cn(
+                                        'font-sans text-sm text-content-primary bg-surface-default',
+                                        'border-[1.5px] border-border-subtle rounded-md px-3.5 py-2.5',
+                                        'outline-none transition-[border-color] duration-150',
+                                        'hover:border-border-default focus:border-teal-400',
+                                    )}
+                                >
+                                    <option value="">Nenhum</option>
+                                    {professores.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </>
                     )}
 
                     {/* Campos aluno */}
                     {role === 'ALUNO' && (
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[13px] font-medium text-content-secondary tracking-[0.01em]">
-                                Professor orientador <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                required
-                                value={professorIdAluno}
-                                onChange={e => setProfessorIdAluno(e.target.value)}
-                                className={cn(
-                                    'font-sans text-sm text-content-primary bg-surface-default',
-                                    'border-[1.5px] border-border-subtle rounded-md px-3.5 py-2.5',
-                                    'outline-none transition-[border-color] duration-150',
-                                    'hover:border-border-default focus:border-teal-400',
-                                )}
-                            >
-                                <option value="">Selecione o professor</option>
-                                {professores.map(p => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                ))}
-                            </select>
-                        </div>
+                        <>
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[13px] font-medium text-content-secondary tracking-[0.01em]">
+                                    Professor orientador <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    required
+                                    value={professorIdAluno}
+                                    onChange={e => setProfessorIdAluno(e.target.value)}
+                                    className={cn(
+                                        'font-sans text-sm text-content-primary bg-surface-default',
+                                        'border-[1.5px] border-border-subtle rounded-md px-3.5 py-2.5',
+                                        'outline-none transition-[border-color] duration-150',
+                                        'hover:border-border-default focus:border-teal-400',
+                                    )}
+                                >
+                                    <option value="">Selecione o professor</option>
+                                    {professores.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[13px] font-medium text-content-secondary tracking-[0.01em]">
+                                    Professor tutor
+                                </label>
+                                <select
+                                    value={professorTutorId}
+                                    onChange={e => setProfessorTutorId(e.target.value)}
+                                    className={cn(
+                                        'font-sans text-sm text-content-primary bg-surface-default',
+                                        'border-[1.5px] border-border-subtle rounded-md px-3.5 py-2.5',
+                                        'outline-none transition-[border-color] duration-150',
+                                        'hover:border-border-default focus:border-teal-400',
+                                    )}
+                                >
+                                    <option value="">Nenhum</option>
+                                    {professores.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </>
                     )}
 
                     {/* Campos comuns */}
@@ -313,6 +375,26 @@ export default function NewActivityModal({
                         required
                         maxLength={20}
                     />
+
+                    <ComboboxSelect
+                        label="Tipo de atividade"
+                        required
+                        value={tipo}
+                        onChange={v => { setTipo(v as TipoAtividade | ''); setTipoDescricao('') }}
+                        options={TIPO_ATIVIDADE_OPTIONS}
+                        placeholder="Buscar tipo de atividade..."
+                    />
+
+                    {tipo === 'OUTROS' && (
+                        <Input
+                            label="Especifique o tipo *"
+                            placeholder="Descreva o procedimento"
+                            value={tipoDescricao}
+                            onChange={e => setTipoDescricao(e.target.value)}
+                            required
+                            maxLength={255}
+                        />
+                    )}
 
                     <Input
                         label="Nome do paciente"

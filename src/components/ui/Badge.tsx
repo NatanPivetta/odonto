@@ -44,7 +44,8 @@ export default function Badge({
 }
 
 export const statusConfig: Record<AtividadeStatus, { variant: BadgeVariant; label: string }> = {
-    PENDENTE:     { variant: 'warning', label: 'Pendente'      },
-    EM_ANDAMENTO: { variant: 'teal',    label: 'Em andamento'  },
-    CONCLUIDA:    { variant: 'green',   label: 'Concluída'     },
+    PENDENTE:     { variant: 'warning', label: 'Pendente'        },
+    EM_ANDAMENTO: { variant: 'teal',    label: 'Em andamento'    },
+    CONCLUIDA:    { variant: 'green',   label: 'Concluída'       },
+    ALTA:         { variant: 'blue',    label: 'Paciente com alta' },
 }

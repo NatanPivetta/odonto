@@ -1,7 +1,8 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { login as loginService, logout as logoutService } from '@/lib/services/auth'
+import { login as loginService, logout as logoutService, register as registerService } from '@/lib/services/auth'
+import type { RegisterRequest } from '@/lib/services/auth'
 import { tokenStorage } from '@/lib/api'
 import type { User } from '@/types'
 
@@ -32,6 +33,7 @@ interface AuthContextType {
     user: User | null
     isInitialized: boolean
     login: (cardNumber: string, password: string) => Promise<void>
+    register: (data: RegisterRequest) => Promise<void>
     logout: () => void
 }
 
@@ -54,6 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(user)
     }
 
+    async function register(data: RegisterRequest) {
+        const response = await registerService(data)
+        const user: User = { name: response.name, cardNumber: response.cardNumber, role: response.role }
+        saveUser(user)
+        setUser(user)
+    }
+
     function logout() {
         logoutService()
         clearUser()
@@ -61,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, isInitialized, login, logout }}>
+        <AuthContext.Provider value={{ user, isInitialized, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     )

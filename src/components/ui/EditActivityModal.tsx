@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
-import type { AtividadeResponseDTO, AtividadeStatus, UserResponse } from '@/types'
+import type { AtividadeResponseDTO, AtividadeStatus, TipoAtividade, UserResponse } from '@/types'
+import { TIPO_ATIVIDADE_OPTIONS } from '@/types'
 import {
     updateAtividadeProfessor,
     updateAtividadeAluno,
     updateStatusAtividade,
 } from '@/lib/services/atividades'
 import { listProfessores } from '@/lib/services/professores'
+import ComboboxSelect from '@/components/ui/ComboboxSelect'
 
 interface EditActivityModalProps {
     open: boolean
@@ -42,7 +44,10 @@ export default function EditActivityModal({
     const [nomePaciente, setNomePaciente]     = useState('')
     const [observacoes, setObservacoes]       = useState('')
     const [professorOrientadorId, setProfessorOrientadorId] = useState('')
+    const [professorTutorId, setProfessorTutorId]           = useState('')
     const [status, setStatus]                 = useState<AtividadeStatus>('PENDENTE')
+    const [tipo, setTipo]                     = useState<TipoAtividade | ''>('')
+    const [tipoDescricao, setTipoDescricao]   = useState('')
     const [professores, setProfessores]       = useState<UserResponse[]>([])
 
     const [loading, setLoading] = useState(false)
@@ -57,14 +62,15 @@ export default function EditActivityModal({
         setNomePaciente(atividade.nomePaciente ?? '')
         setObservacoes(atividade.observacoes ?? '')
         setProfessorOrientadorId(String(atividade.professorOrientador.id))
+        setProfessorTutorId(atividade.professorTutor ? String(atividade.professorTutor.id) : '')
         setStatus(atividade.status)
+        setTipo(atividade.tipo ?? '')
+        setTipoDescricao(atividade.tipoDescricao ?? '')
         setError(null)
 
-        if (role === 'PROFESSOR') {
-            listProfessores()
-                .then(page => setProfessores(page.content))
-                .catch(err => console.error('[EditActivityModal] listProfessores:', err))
-        }
+        listProfessores()
+            .then(page => setProfessores(page.content))
+            .catch(err => console.error('[EditActivityModal] listProfessores:', err))
     }, [open, atividade, role])
 
     async function handleSubmit(e: React.FormEvent) {
@@ -81,7 +87,10 @@ export default function EditActivityModal({
                     prontuario,
                     nomePaciente: nomePaciente || null,
                     observacoes: observacoes || null,
+                    tipo: tipo || null,
+                    tipoDescricao: tipo === 'OUTROS' ? tipoDescricao || null : null,
                     professorOrientadorId: Number(professorOrientadorId),
+                    professorTutorId: professorTutorId ? Number(professorTutorId) : null,
                 })
                 if (status !== atividade.status) {
                     updated = await updateStatusAtividade(atividade.id, status)
@@ -93,6 +102,9 @@ export default function EditActivityModal({
                     prontuario,
                     nomePaciente: nomePaciente || null,
                     observacoes: observacoes || null,
+                    tipo: tipo || null,
+                    tipoDescricao: tipo === 'OUTROS' ? tipoDescricao || null : null,
+                    professorTutorId: professorTutorId ? Number(professorTutorId) : null,
                 })
             }
 
@@ -164,6 +176,24 @@ export default function EditActivityModal({
                         maxLength={20}
                     />
 
+                    <ComboboxSelect
+                        label="Tipo de atividade"
+                        value={tipo}
+                        onChange={v => { setTipo(v as TipoAtividade | ''); if (v !== 'OUTROS') setTipoDescricao('') }}
+                        options={TIPO_ATIVIDADE_OPTIONS}
+                        placeholder="Buscar tipo de atividade..."
+                    />
+
+                    {tipo === 'OUTROS' && (
+                        <Input
+                            label="Especifique o tipo"
+                            placeholder="Descreva o procedimento"
+                            value={tipoDescricao}
+                            onChange={e => setTipoDescricao(e.target.value)}
+                            maxLength={255}
+                        />
+                    )}
+
                     <Input
                         label="Nome do paciente"
                         value={nomePaciente}
@@ -186,6 +216,23 @@ export default function EditActivityModal({
                                 'hover:border-border-default focus:border-teal-400 focus:shadow-[0_0_0_3px_rgba(31,163,163,0.12)]',
                             )}
                         />
+                    </div>
+
+                    {/* Professor tutor — disponível para ambos os roles */}
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[13px] font-medium text-content-secondary tracking-[0.01em]">
+                            Professor tutor
+                        </label>
+                        <select
+                            value={professorTutorId}
+                            onChange={e => setProfessorTutorId(e.target.value)}
+                            className={selectClass}
+                        >
+                            <option value="">Nenhum</option>
+                            {professores.map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Campos exclusivos do professor */}
