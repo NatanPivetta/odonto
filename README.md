@@ -15,7 +15,7 @@ npm run dev                  # http://localhost:3000
 ```
 
 O frontend consome a API descrita em `NEXT_PUBLIC_API_URL`. Suba o backend antes
-(ver [README da raiz](../README.md), seção *Quick Start*).
+(ver [backend/setup.md](https://github.com/NatanPivetta/odonto-docs/blob/main/backend/setup.md) no odonto-docs).
 
 ## Organização
 
