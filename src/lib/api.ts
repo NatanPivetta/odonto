@@ -61,6 +61,12 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   })
 
   if (!res.ok) {
+    if (res.status === 401 && typeof window !== 'undefined') {
+      tokenStorage.clear()
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login'
+      }
+    }
     const body = await res.text().catch(() => res.statusText)
     throw new ApiError(res.status, body)
   }

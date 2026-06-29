@@ -124,8 +124,8 @@ function AdicionarAlunoModal({
             onAdded(novos)
         } catch (err) {
             setErroAba(
-                err instanceof ApiError && err.status === 400
-                    ? 'Um ou mais alunos já estão matriculados nesta turma.'
+                err instanceof ApiError && err.status === 409
+                    ? err.message || 'Um ou mais alunos já estão matriculados nesta turma.'
                     : 'Erro ao matricular alunos.',
             )
         } finally {

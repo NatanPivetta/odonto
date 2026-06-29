@@ -80,18 +80,14 @@ export default function AtividadeDetailPage() {
                 setLoading(true)
                 setError(null)
 
+                const ativ = await getAtividadeById(atividadeId)
+                setAtividade(ativ)
+
                 if (user!.role === 'PROFESSOR') {
-                    const [ativ, filhasPage] = await Promise.all([
-                        getAtividadeById(atividadeId),
-                        listAtividades({ atividadePaiId: atividadeId, size: 100 }),
-                    ])
-                    setAtividade(ativ)
+                    const filhasPage = await listAtividades({ atividadePaiId: atividadeId, size: 100 })
                     setFilhas(filhasPage.content.filter(a => a.atividadePaiId === atividadeId))
                 } else {
                     const minhasPage = await listMinhasAtividades({ size: 200 })
-                    const ativ = minhasPage.content.find(a => a.id === atividadeId)
-                    if (!ativ) throw new Error('not found')
-                    setAtividade(ativ)
                     setFilhas(minhasPage.content.filter(a => a.atividadePaiId === atividadeId))
                 }
             } catch {
