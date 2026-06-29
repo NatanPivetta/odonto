@@ -3,8 +3,8 @@
 Interface web do sistema OdontoUFRGS. Stack: **Next.js 16 (App Router) · React 19 ·
 TypeScript · Tailwind CSS**.
 
-> A documentação canônica do projeto (pré-requisitos, quick start, arquitetura, deploy)
-> está no **[README da raiz do repositório](../README.md)**.
+> **Documentação completa** (arquitetura, DER, fluxos, infra, backlog) em
+> **[NatanPivetta/odonto-docs](https://github.com/NatanPivetta/odonto-docs)**.
 
 ## Rodando localmente
 
