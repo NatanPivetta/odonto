@@ -9,7 +9,7 @@ import { TIPO_ATIVIDADE_OPTIONS } from '@/types'
 import type { Turma } from '@/types'
 import { createAtividadeProfessor, createAtividadeAluno } from '@/lib/services/atividades'
 import { listAlunos } from '@/lib/services/users'
-import { listTurmas } from '@/lib/services/turmas'
+import { listTurmas, listTurmasDoAluno } from '@/lib/services/turmas'
 import { listProfessores } from '@/lib/services/professores'
 import { useAuth } from '@/lib/auth'
 import ComboboxSelect from '@/components/ui/ComboboxSelect'
@@ -81,18 +81,27 @@ export default function NewActivityModal({
             })
             .catch(err => console.error('[NewActivityModal] listProfessores:', err))
 
-        if (role === 'PROFESSOR') {
-            // Alunos: só carrega lista completa se não há atividade pai
-            if (!parentAtividade) {
-                listAlunos({ active: true })
-                    .then(page => setAlunos(page.content))
-                    .catch(err => console.error('[NewActivityModal] listAlunos:', err))
-            }
-            listTurmas()
-                .then(page => setTurmas(page.content))
-                .catch(err => console.error('[NewActivityModal] listTurmas:', err))
+        if (role === 'PROFESSOR' && !parentAtividade) {
+            listAlunos({ active: true })
+                .then(page => setAlunos(page.content))
+                .catch(err => console.error('[NewActivityModal] listAlunos:', err))
         }
     }, [open, role, user?.cardNumber, parentAtividade])
+
+    useEffect(() => {
+        if (role !== 'PROFESSOR' || !alunoId) {
+            setTurmas([])
+            setTurmaId('')
+            return
+        }
+        listTurmasDoAluno(Number(alunoId))
+            .then(list => {
+                setTurmas(list)
+                if (list.length === 1) setTurmaId(String(list[0].id))
+                else setTurmaId('')
+            })
+            .catch(err => console.error('[NewActivityModal] listTurmasDoAluno:', err))
+    }, [alunoId, role])
 
     function reset() {
         setData('')
@@ -363,7 +372,10 @@ export default function NewActivityModal({
                             label="Data de conclusão"
                             type="date"
                             value={dataConclusao}
-                            onChange={e => setDataConclusao(e.target.value)}
+                            onChange={e => {
+                                setDataConclusao(e.target.value)
+                                if (e.target.value) setStatus('CONCLUIDA')
+                            }}
                         />
                     </div>
 

@@ -26,6 +26,10 @@ export function listTurmas(params?: { page?: number; size?: number }) {
     return api.get<Page<Turma>>(`/v1/turmas?${query}`)
 }
 
+export function listTurmasDoAluno(alunoId: number) {
+    return api.get<Turma[]>(`/v1/turmas/aluno/${alunoId}`)
+}
+
 export function getTurmaById(id: number) {
     return api.get<Turma>(`/v1/turmas/${id}`)
 }
