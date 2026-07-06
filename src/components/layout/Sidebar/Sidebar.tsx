@@ -3,6 +3,7 @@
 import { FiChevronsRight, FiChevronsLeft } from "react-icons/fi";
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import SidebarSection from './SidebarSection'
@@ -10,7 +11,13 @@ import SidebarFooter from './SidebarFooter'
 import { navAluno, navProfessor } from '@/config/navigation'
 import { Role } from '@/types'
 
-export default function Sidebar({ role, userName, userInitials = '?' }: any) {
+type SidebarProps = {
+  role: Role
+  userName: string
+  userInitials?: string
+}
+
+export default function Sidebar({ role, userName, userInitials = '?' }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === 'undefined') return false
     return localStorage.getItem('sidebar') === 'collapsed'
@@ -35,8 +42,23 @@ export default function Sidebar({ role, userName, userInitials = '?' }: any) {
         {/* Header */}
         <div className="flex items-center px-3 py-4 border-b border-border-subtle">
           {!collapsed && (
-              <div className="flex-1 text-content-primary">
-                ClinOdonto
+              <div className="flex-1">
+                <Image
+                    src="/clinodonto-logo-transparent.svg"
+                    alt="ClinOdonto"
+                    width={960}
+                    height={300}
+                    className="h-12 w-44 object-contain object-left dark:hidden"
+                    priority
+                />
+                <Image
+                    src="/clinodonto-logo-transparent-dark.svg"
+                    alt="ClinOdonto"
+                    width={960}
+                    height={300}
+                    className="hidden h-12 w-44 object-contain object-left dark:block"
+                    priority
+                />
               </div>
           )}
 

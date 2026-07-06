@@ -1,0 +1,30 @@
+<svg width="960" height="300" viewBox="0 0 960 300" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">ClinOdonto</title>
+  <desc id="desc">Logo vetorial horizontal da ClinOdonto com fundo transparente para tema escuro.</desc>
+  <defs>
+    <linearGradient id="brandGradient" x1="165" y1="48" x2="321" y2="252" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3EB8B8"/>
+      <stop offset="1" stop-color="#0F6B6B"/>
+    </linearGradient>
+    <filter id="softShadow" x="131" y="31" width="224" height="238" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="8"/>
+      <feGaussianBlur stdDeviation="10"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.011765 0 0 0 0 0.047059 0 0 0 0 0.058824 0 0 0 0.32 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+  </defs>
+  <g filter="url(#softShadow)">
+    <rect x="151" y="48" width="184" height="204" rx="44" fill="url(#brandGradient)"/>
+    <path d="M241.8 84.6C228.9 76.8 213.5 77 202.6 83.7C186.4 93.6 181.7 114.3 189.1 135.1C196.6 156.2 202.4 177.4 205.8 202.2C207.7 216.2 217.6 224.1 228.7 220.5C236 218.1 238.5 208.9 240.3 200.4C242 192.2 244.3 185.2 249.2 185.2C254.1 185.2 256.4 192.2 258.1 200.4C259.9 208.9 262.4 218.1 269.7 220.5C280.8 224.1 290.7 216.2 292.6 202.2C296 177.4 301.8 156.2 309.3 135.1C316.7 114.3 312 93.6 295.8 83.7C284.9 77 269.5 76.8 256.6 84.6C252.1 87.3 246.3 87.3 241.8 84.6Z" fill="white"/>
+    <path d="M248.8 97.2C264.6 107.4 281 105.2 292.6 95.9" stroke="#D9F2F2" stroke-width="8" stroke-linecap="round"/>
+    <path d="M229 145H269" stroke="#1FA3A3" stroke-width="12" stroke-linecap="round"/>
+    <path d="M249 125V165" stroke="#1FA3A3" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <text x="389" y="173" fill="#F8FAFB" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="72" font-weight="800" letter-spacing="0">
+    Clin<tspan fill="#3EB8B8">Odonto</tspan>
+  </text>
+</svg>

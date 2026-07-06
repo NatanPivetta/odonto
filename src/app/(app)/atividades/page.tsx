@@ -75,7 +75,7 @@ function ActivityCard({ activity, isProfessor, onClick, onConcluir }: {
                 'bg-surface-default border border-border-subtle',
                 'rounded-xl shadow-xs p-5 cursor-pointer',
                 'hover:shadow-sm hover:border-border-default',
-                'transition-all duration-150 flex flex-col gap-3',
+                'transition-all duration-150 flex min-w-0 flex-col gap-3',
             )}
         >
             <div className="flex items-start justify-between gap-3">
@@ -105,25 +105,25 @@ function ActivityCard({ activity, isProfessor, onClick, onConcluir }: {
                         </span>
                     </div>
                 )}
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-3">
                     <span className="text-content-tertiary">Orientador</span>
                     <span className="text-content-secondary truncate max-w-[60%] text-right">
                         {activity.professorOrientador.name}
                     </span>
                 </div>
                 {activity.professorTutor && (
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-3">
                         <span className="text-content-tertiary">Tutor</span>
                         <span className="text-content-secondary truncate max-w-[60%] text-right">
                             {activity.professorTutor.name}
                         </span>
                     </div>
                 )}
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-3">
                     <span className="text-content-tertiary">Turma</span>
-                    <span className="text-content-secondary">{activity.turma.name}</span>
+                    <span className="max-w-[60%] truncate text-right text-content-secondary">{activity.turma.name}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-3">
                     <span className="text-content-tertiary">Data</span>
                     <span className="text-content-secondary">
                         {new Date(activity.data + 'T00:00:00').toLocaleDateString('pt-BR')}
@@ -219,9 +219,9 @@ function NewActivityCard({ onClick }: { onClick: () => void }) {
                 <div className="w-8 h-8 rounded-md bg-teal-500 text-white flex items-center justify-center text-lg font-light group-hover:scale-110 transition-transform">
                     +
                 </div>
-                <div>
+                <div className="min-w-0">
                     <p className="text-sm font-semibold text-teal-700">Nova atividade</p>
-                    <p className="text-xs text-teal-600/70">Clique para registrar uma atividade clínica</p>
+                    <p className="truncate text-xs text-teal-600/70">Clique para registrar uma atividade clínica</p>
                 </div>
             </div>
         </button>
@@ -530,20 +530,20 @@ function AtividadesContent() {
     }
 
     return (
-        <div className="p-8">
+        <div className="w-full max-w-full overflow-x-hidden px-4 py-6 md:p-8">
             {/* Header */}
-            <div className="flex items-end justify-between mb-6">
-                <div>
+            <div className="mb-6 flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
+                <div className="min-w-0">
                     <p className="text-sm text-content-secondary mb-1">Gestão</p>
                     <h1 className="font-serif text-3xl text-content-primary">Atividades</h1>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex w-full min-w-0 items-center gap-2 md:w-auto">
                     {/* Botão de filtros */}
                     <button
                         onClick={() => setFilterOpen(true)}
                         className={cn(
-                            'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+                            'flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
                             'border',
                             activeFilterCount > 0
                                 ? 'bg-teal-50 text-teal-700 border-teal-300 hover:bg-teal-100'
@@ -560,11 +560,11 @@ function AtividadesContent() {
                     </button>
 
                     {/* Toggle cards/lista */}
-                    <div className="flex items-center gap-1 bg-surface-subtle rounded-lg p-1">
+                    <div className="grid min-w-0 flex-1 grid-cols-2 gap-1 rounded-lg bg-surface-subtle p-1 md:flex md:flex-none md:items-center">
                         <button
                             onClick={() => setView('cards')}
                             className={cn(
-                                'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+                                'flex min-w-0 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-all md:px-3',
                                 view === 'cards'
                                     ? 'bg-surface-default text-content-primary shadow-xs'
                                     : 'text-content-tertiary hover:text-content-secondary',
@@ -575,7 +575,7 @@ function AtividadesContent() {
                         <button
                             onClick={() => setView('lista')}
                             className={cn(
-                                'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+                                'flex min-w-0 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-all md:px-3',
                                 view === 'lista'
                                     ? 'bg-surface-default text-content-primary shadow-xs'
                                     : 'text-content-tertiary hover:text-content-secondary',
@@ -634,35 +634,37 @@ function AtividadesContent() {
                             Nova atividade
                         </button>
                     </div>
-                    <table className="w-full border-collapse text-sm">
-                        <thead>
-                            <tr className="bg-surface-subtle">
-                                {['Paciente', 'Prontuário', 'Status', ...(isProfessor ? ['Aluno'] : []), 'Professor', 'Turma', 'Data', ''].map((col, i) => (
-                                    <th key={i} className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle">
-                                        {col}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {atividades.length === 0 && (
-                                <tr>
-                                    <td colSpan={isProfessor ? 8 : 7} className="px-4 py-8 text-center text-sm text-content-tertiary">
-                                        Nenhuma atividade encontrada.
-                                    </td>
+                    <div className="max-w-full overflow-x-auto">
+                        <table className="min-w-[720px] border-collapse text-sm">
+                            <thead>
+                                <tr className="bg-surface-subtle">
+                                    {['Paciente', 'Prontuário', 'Status', ...(isProfessor ? ['Aluno'] : []), 'Professor', 'Turma', 'Data', ''].map((col, i) => (
+                                        <th key={i} className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-content-tertiary border-b border-border-subtle">
+                                            {col}
+                                        </th>
+                                    ))}
                                 </tr>
-                            )}
-                            {atividades.map(a => (
-                                <ActivityRow
-                                    key={a.id}
-                                    activity={a}
-                                    isProfessor={isProfessor}
-                                    onClick={() => router.push(`/atividades/${a.id}`)}
-                                    onConcluir={() => handleConcluir(a.id)}
-                                />
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {atividades.length === 0 && (
+                                    <tr>
+                                        <td colSpan={isProfessor ? 8 : 7} className="px-4 py-8 text-center text-sm text-content-tertiary">
+                                            Nenhuma atividade encontrada.
+                                        </td>
+                                    </tr>
+                                )}
+                                {atividades.map(a => (
+                                    <ActivityRow
+                                        key={a.id}
+                                        activity={a}
+                                        isProfessor={isProfessor}
+                                        onClick={() => router.push(`/atividades/${a.id}`)}
+                                        onConcluir={() => handleConcluir(a.id)}
+                                    />
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
 
