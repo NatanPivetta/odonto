@@ -1,10 +1,22 @@
 'use client'
 
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 
 export default function VisualViewportSync() {
+    const pathname = usePathname()
+
     useEffect(() => {
         const root = document.documentElement
+
+        function resetHorizontalScroll() {
+            document.documentElement.scrollLeft = 0
+            document.body.scrollLeft = 0
+
+            if (window.scrollX !== 0) {
+                window.scrollTo({ left: 0, top: window.scrollY, behavior: 'instant' })
+            }
+        }
 
         function syncViewport() {
             const viewport = window.visualViewport
@@ -18,19 +30,23 @@ export default function VisualViewportSync() {
             root.style.setProperty('--visual-viewport-bottom', `${bottom}px`)
         }
 
+        function syncAndReset() {
+            syncViewport()
+            requestAnimationFrame(resetHorizontalScroll)
+        }
+
         syncViewport()
-        window.addEventListener('resize', syncViewport)
-        window.addEventListener('orientationchange', syncViewport)
+        requestAnimationFrame(resetHorizontalScroll)
+        window.addEventListener('resize', syncAndReset)
+        window.addEventListener('orientationchange', syncAndReset)
         window.visualViewport?.addEventListener('resize', syncViewport)
-        window.visualViewport?.addEventListener('scroll', syncViewport)
 
         return () => {
-            window.removeEventListener('resize', syncViewport)
-            window.removeEventListener('orientationchange', syncViewport)
+            window.removeEventListener('resize', syncAndReset)
+            window.removeEventListener('orientationchange', syncAndReset)
             window.visualViewport?.removeEventListener('resize', syncViewport)
-            window.visualViewport?.removeEventListener('scroll', syncViewport)
         }
-    }, [])
+    }, [pathname])
 
     return null
 }

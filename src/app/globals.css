@@ -90,14 +90,17 @@
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
+        overscroll-behavior-x: none;
     }
 
     body {
         @apply bg-surface-page text-content-primary font-sans;
+        position: relative;
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
         overscroll-behavior-x: none;
+        touch-action: pan-y;
     }
 
     #__next {
@@ -109,6 +112,13 @@
     .app-shell {
         width: 100%;
         max-width: 100%;
+        touch-action: pan-y;
+    }
+
+    .app-main {
+        width: 100%;
+        max-width: 100%;
+        contain: inline-size;
     }
 
     .mobile-bottom-nav {
@@ -118,5 +128,18 @@
 
     .pb-mobile-nav {
         padding-bottom: calc(76px + max(env(safe-area-inset-bottom), 10px) + var(--visual-viewport-bottom));
+    }
+
+    @media (max-width: 767px) {
+        .app-shell {
+            display: block;
+            width: 100svw;
+            max-width: 100svw;
+        }
+
+        .app-main {
+            width: 100svw;
+            max-width: 100svw;
+        }
     }
 }

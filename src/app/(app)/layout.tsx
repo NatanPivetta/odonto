@@ -32,7 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 userName={user.name}
                 userInitials={initials}
             />
-            <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-mobile-nav md:pb-0">
+            <main className="app-main min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-mobile-nav md:pb-0">
                 {children}
             </main>
             <ThemeToggle className="md:hidden fixed top-3 right-3 z-50" />
