@@ -551,7 +551,7 @@ export default function TurmaDetailPage() {
 
     if (loading) {
         return (
-            <div className="p-8 space-y-4">
+            <div className="w-full max-w-full overflow-x-hidden px-4 py-6 md:p-8 space-y-4">
                 <div className="h-8 w-48 bg-surface-subtle rounded animate-pulse" />
                 <div className="h-4 w-32 bg-surface-subtle rounded animate-pulse" />
                 <div className="h-64 bg-surface-subtle rounded-xl animate-pulse mt-6" />
@@ -561,7 +561,7 @@ export default function TurmaDetailPage() {
 
     if (error || !turma) {
         return (
-            <div className="p-8">
+            <div className="w-full max-w-full overflow-x-hidden px-4 py-6 md:p-8">
                 <p className="text-sm text-red-600">{error ?? 'Turma não encontrada.'}</p>
                 <button onClick={() => router.back()} className="mt-3 text-sm text-teal-600 hover:underline">
                     ← Voltar
@@ -573,7 +573,7 @@ export default function TurmaDetailPage() {
     const alunosIds = turma.alunos.map((a) => a.id)
 
     return (
-        <div className="p-8">
+        <div className="w-full max-w-full overflow-x-hidden px-4 py-6 md:p-8">
             {/* Header */}
             <div className="mb-6">
                 <button
@@ -582,15 +582,15 @@ export default function TurmaDetailPage() {
                 >
                     ← Turmas
                 </button>
-                <div className="flex items-end justify-between">
-                    <div>
+                <div className="flex min-w-0 flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
+                    <div className="min-w-0 max-w-full">
                         <div className="flex items-center gap-2 mb-1">
                             <span className="px-2 py-0.5 rounded bg-teal-50 text-teal-700 text-[11px] font-semibold tracking-wide uppercase">
                                 {turma.disciplina}
                             </span>
                             <span className="text-xs text-content-tertiary">{turma.semester}</span>
                         </div>
-                        <h1 className="font-serif text-3xl text-content-primary">{turma.name}</h1>
+                        <h1 className="font-serif text-3xl leading-tight text-content-primary">{turma.name}</h1>
                         {turma.alunos.length > 0 && (
                             <p className="text-sm text-content-tertiary mt-1">
                                 {turma.alunos.length} aluno{turma.alunos.length > 1 ? 's' : ''} matriculado{turma.alunos.length > 1 ? 's' : ''}
@@ -602,7 +602,7 @@ export default function TurmaDetailPage() {
             </div>
 
             {/* Tabela */}
-            <div className="bg-surface-default border border-border-subtle rounded-xl overflow-hidden shadow-xs">
+            <div className="max-w-full overflow-x-auto rounded-xl border border-border-subtle bg-surface-default shadow-xs">
                 <AlunosTable
                     alunos={turma.alunos}
                     turmaId={turmaId}

@@ -5,9 +5,6 @@
 @layer base {
     :root {
         --visual-viewport-bottom: 0px;
-        --visual-viewport-left: 0px;
-        --visual-viewport-width: 100vw;
-
         /* ── SURFACE ───────────────────────── */
         --surface-page: 248 250 251;     /* gray-50 */
         --surface-default: 255 255 255;  /* white */
@@ -111,14 +108,11 @@
 
     .app-shell {
         width: 100%;
-        max-width: 100dvw;
+        max-width: 100%;
     }
 
     .mobile-bottom-nav {
-        right: auto;
         bottom: var(--visual-viewport-bottom);
-        left: var(--visual-viewport-left);
-        width: var(--visual-viewport-width);
         padding-bottom: max(env(safe-area-inset-bottom), 10px);
     }
 

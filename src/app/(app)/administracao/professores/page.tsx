@@ -153,10 +153,10 @@ export default function ProfessoresPage() {
     }
 
     return (
-        <div className="p-8">
+        <div className="w-full max-w-full overflow-x-hidden px-4 py-6 md:p-8">
             {/* Header */}
-            <div className="flex items-end justify-between mb-6">
-                <div>
+            <div className="mb-6 flex min-w-0 flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
+                <div className="min-w-0">
                     <p className="text-sm text-content-secondary mb-1">Administração</p>
                     <h1 className="font-serif text-3xl text-content-primary">Professores</h1>
                 </div>
@@ -176,13 +176,13 @@ export default function ProfessoresPage() {
             )}
 
             {!loading && !error && (
-                <div className="bg-surface-default border border-border-subtle rounded-xl overflow-hidden shadow-xs">
+                <div className="max-w-full overflow-x-auto rounded-xl border border-border-subtle bg-surface-default shadow-xs">
                     {professores.length === 0 ? (
                         <div className="px-4 py-8 text-center text-sm text-content-tertiary">
                             Nenhum professor cadastrado.
                         </div>
                     ) : (
-                        <table className="w-full border-collapse text-sm">
+                        <table className="min-w-[560px] w-full border-collapse text-sm">
                             <thead>
                                 <tr className="bg-surface-subtle">
                                     {['Nome', 'E-mail', 'Nº Cartão', 'Status'].map(col => (

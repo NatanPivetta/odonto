@@ -3,7 +3,7 @@ import Badge from '@/components/ui/Badge'
 
 export default function DashboardPage() {
     return (
-        <div className="p-8">
+        <div className="w-full max-w-full overflow-x-hidden px-4 py-6 md:p-8">
 
             {/* Header */}
             <div className="mb-8">
@@ -12,7 +12,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="mb-8 grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-3">
                 {[
                     { label: 'Concluídos',  value: '8',  color: 'text-teal-600',  badge: 'green'   },
                     { label: 'Pendentes',   value: '3',  color: 'text-amber-500', badge: 'warning' },
@@ -20,7 +20,7 @@ export default function DashboardPage() {
                 ].map((stat) => (
                     <div
                         key={stat.label}
-                        className="bg-surface-default border border-border-subtle rounded-lg shadow-xs p-6"
+                        className="min-w-0 bg-surface-default border border-border-subtle rounded-lg shadow-xs p-5 md:p-6"
                     >
                         <p className={`text-3xl font-semibold ${stat.color} mb-1`}>{stat.value}</p>
                         <p className="text-sm text-content-secondary">{stat.label}</p>
@@ -29,7 +29,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Progresso */}
-            <div className="bg-surface-default border border-border-subtle rounded-lg shadow-xs p-6 max-w-lg">
+            <div className="max-w-lg bg-surface-default border border-border-subtle rounded-lg shadow-xs p-5 md:p-6">
                 <div className="flex justify-between items-baseline mb-3">
                     <span className="text-sm font-medium text-content-secondary">Progresso geral</span>
                     <span className="text-sm font-semibold text-content-primary">67%</span>

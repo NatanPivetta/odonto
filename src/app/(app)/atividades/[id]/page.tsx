@@ -181,7 +181,7 @@ export default function AtividadeDetailPage() {
 
     if (loading) {
         return (
-            <div className="p-8 flex items-center justify-center py-20 text-content-secondary text-sm">
+            <div className="flex w-full max-w-full items-center justify-center overflow-x-hidden px-4 py-20 text-sm text-content-secondary md:p-8">
                 Carregando atividade...
             </div>
         )
@@ -189,7 +189,7 @@ export default function AtividadeDetailPage() {
 
     if (error || !atividade) {
         return (
-            <div className="p-8">
+            <div className="w-full max-w-full overflow-x-hidden px-4 py-6 md:p-8">
                 <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-4 text-sm text-red-700">
                     {error ?? 'Atividade não encontrada.'}
                 </div>
@@ -200,7 +200,7 @@ export default function AtividadeDetailPage() {
     const { variant, label } = statusConfig[atividade.status]
 
     return (
-        <div className="p-8 max-w-4xl mx-auto">
+        <div className="mx-auto w-full max-w-4xl overflow-x-hidden px-4 py-6 md:p-8">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-content-tertiary mb-6">
                 <button
@@ -214,10 +214,10 @@ export default function AtividadeDetailPage() {
             </div>
 
             {/* Header */}
-            <div className="flex items-start justify-between gap-4 mb-8">
-                <div>
+            <div className="mb-8 flex min-w-0 flex-col items-start gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="min-w-0 max-w-full">
                     <p className="text-sm text-content-secondary mb-1">Gestão</p>
-                    <h1 className="font-serif text-3xl text-content-primary">
+                    <h1 className="font-serif text-3xl leading-tight text-content-primary">
                         {atividade.nomePaciente ?? 'Paciente não informado'}
                     </h1>
                     <p className="text-sm text-content-tertiary font-mono mt-1">{atividade.prontuario}</p>
@@ -235,10 +235,10 @@ export default function AtividadeDetailPage() {
                 </div>
 
                 {/* Ações */}
-                <div className="flex flex-col items-end gap-2 shrink-0">
+                <div className="flex max-w-full flex-col items-start gap-2 md:shrink-0 md:items-end">
                     <Badge variant={variant} dot>{label}</Badge>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex max-w-full flex-wrap items-center gap-2">
                         <Button variant="ghost" size="sm" onClick={() => setEditOpen(true)}>
                             Editar
                         </Button>
@@ -276,7 +276,7 @@ export default function AtividadeDetailPage() {
                         )}
 
                         {isProfessor && confirmDelete && (
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
                                 <span className="text-xs text-red-600 whitespace-nowrap">Confirmar exclusão?</span>
                                 <Button variant="danger" size="sm" loading={deleting} onClick={handleDelete}>
                                     Sim
@@ -295,7 +295,7 @@ export default function AtividadeDetailPage() {
             </div>
 
             {/* Info grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="mb-4 grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
                 <InfoCard title="Pessoas envolvidas">
                     {isProfessor && <InfoRow label="Aluno" value={atividade.aluno.name} />}
                     <InfoRow label="Prof. orientador" value={atividade.professorOrientador.name} />
@@ -329,7 +329,7 @@ export default function AtividadeDetailPage() {
 
             {/* Atividades filhas */}
             <div className="mt-8">
-                <div className="flex items-center justify-between mb-4">
+                <div className="mb-4 flex min-w-0 flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
                     <h2 className="font-serif text-xl text-content-primary">
                         Atividades filhas
                         {filhas.length > 0 && (

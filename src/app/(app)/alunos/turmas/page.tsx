@@ -19,7 +19,7 @@ function TurmaCard({ turma, onClick }: { turma: Turma; onClick: () => void }) {
                 'bg-surface-default border border-border-subtle',
                 'rounded-xl shadow-xs p-5 cursor-pointer',
                 'hover:shadow-sm hover:border-border-default',
-                'transition-all duration-150',
+                'transition-all duration-150 min-w-0',
             )}
         >
             <div className="flex items-start justify-between gap-3 mb-3">
@@ -51,7 +51,7 @@ function NovaTurmaCard({ onClick }: { onClick: () => void }) {
         <button
             onClick={onClick}
             className={cn(
-                'w-full text-left',
+                'w-full min-w-0 text-left',
                 'bg-teal-50 border-2 border-dashed border-teal-200',
                 'rounded-xl p-5 cursor-pointer',
                 'hover:bg-teal-100 hover:border-teal-300',
@@ -62,9 +62,9 @@ function NovaTurmaCard({ onClick }: { onClick: () => void }) {
                 <div className="w-8 h-8 rounded-md bg-teal-500 text-white flex items-center justify-center text-lg font-light group-hover:scale-110 transition-transform">
                     +
                 </div>
-                <div>
+                <div className="min-w-0">
                     <p className="text-sm font-semibold text-teal-700">Nova turma</p>
-                    <p className="text-xs text-teal-600/70">Clique para criar uma turma</p>
+                    <p className="truncate text-xs text-teal-600/70">Clique para criar uma turma</p>
                 </div>
             </div>
         </button>
@@ -213,8 +213,8 @@ export default function TurmasPage() {
     }
 
     return (
-        <div className="p-8">
-            <div className="mb-6">
+        <div className="w-full max-w-full overflow-x-hidden px-4 py-6 md:p-8">
+            <div className="mb-6 min-w-0">
                 <p className="text-sm text-content-secondary mb-1">Gestão</p>
                 <h1 className="font-serif text-3xl text-content-primary">Turmas</h1>
             </div>
@@ -226,13 +226,13 @@ export default function TurmasPage() {
             )}
 
             {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {[...Array(3)].map((_, i) => (
                         <div key={i} className="h-36 bg-surface-subtle rounded-xl animate-pulse" />
                     ))}
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <NovaTurmaCard onClick={() => setModalOpen(true)} />
                     {turmas.map((t) => (
                         <TurmaCard
