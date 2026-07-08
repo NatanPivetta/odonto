@@ -4,8 +4,8 @@ import type { Role, UserResponse, Page } from '@/types'
 export interface CreateUserRequest {
     name: string
     email: string
-    cardNumber: string  // exatamente 9 dígitos
-    password: string    // mínimo 8 caracteres
+    cardNumber: string  // ate 8 digitos; backend completa zeros a esquerda
+    password: string    // minimo 8 caracteres
     role: Role
 }
 

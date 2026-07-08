@@ -7,12 +7,14 @@ import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { useState } from 'react'
 import { ApiError } from '@/lib/api'
+import { formatCardNumber, normalizeCardNumber } from '@/lib/card-number'
 
 export default function LoginPage() {
     const router = useRouter()
     const { login } = useAuth()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [cardNumber, setCardNumber] = useState('')
 
     async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -20,11 +22,10 @@ export default function LoginPage() {
         setLoading(true)
 
         const form = e.currentTarget
-        const cardNumber = (form.elements.namedItem('cardNumber') as HTMLInputElement).value
         const password = (form.elements.namedItem('password') as HTMLInputElement).value
 
         try {
-            await login(cardNumber, password)
+            await login(normalizeCardNumber(cardNumber), password)
             router.push('/dashboard')
         } catch (err) {
             if (err instanceof ApiError && err.isUnauthorized) {
@@ -64,8 +65,9 @@ export default function LoginPage() {
                             name="cardNumber"
                             label="Número do cartão"
                             type="text"
-                            placeholder="000000000"
-                            maxLength={9}
+                            placeholder="00000000"
+                            value={cardNumber}
+                            onChange={e => setCardNumber(formatCardNumber(e.target.value))}
                             required
                         />
                         <Input

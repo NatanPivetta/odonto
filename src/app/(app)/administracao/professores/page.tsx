@@ -7,6 +7,7 @@ import { createUser } from '@/lib/services/users'
 import type { UserResponse } from '@/types'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import { formatCardNumber, normalizeCardNumber } from '@/lib/card-number'
 
 // ── Modal de novo professor ──────────────────────────────────────────
 
@@ -35,7 +36,7 @@ function NovoProfessorModal({ open, onClose, onCreated }: NovoProfessorModalProp
         setLoading(true)
         setError(null)
         try {
-            const prof = await createUser({ name, email, cardNumber, password, role: 'PROFESSOR' })
+            const prof = await createUser({ name, email, cardNumber: normalizeCardNumber(cardNumber), password, role: 'PROFESSOR' })
             onCreated(prof)
             handleClose()
         } catch (err: any) {
@@ -90,13 +91,11 @@ function NovoProfessorModal({ open, onClose, onCreated }: NovoProfessorModalProp
                     />
                     <Input
                         label="Nº de cartão *"
-                        placeholder="9 dígitos"
+                        placeholder="8 dígitos"
                         value={cardNumber}
-                        onChange={e => setCardNumber(e.target.value)}
+                        onChange={e => setCardNumber(formatCardNumber(e.target.value))}
                         required
-                        maxLength={9}
-                        minLength={9}
-                        pattern="\d{9}"
+                        pattern="\d{1,8}"
                     />
                     <Input
                         label="Senha *"

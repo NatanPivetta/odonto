@@ -8,6 +8,7 @@ import { sendVerificationCode } from '@/lib/services/auth'
 import { ApiError } from '@/lib/api'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
+import { formatCardNumber, normalizeCardNumber } from '@/lib/card-number'
 
 function Logo() {
     return (
@@ -105,7 +106,7 @@ export default function PrimeiroAcessoPage() {
         setError(null)
         setLoading(true)
         try {
-            await sendVerificationCode({ name, email, cardNumber })
+            await sendVerificationCode({ name, email, cardNumber: normalizeCardNumber(cardNumber) })
             startCooldown()
             setStep(2)
         } catch (err) {
@@ -127,7 +128,7 @@ export default function PrimeiroAcessoPage() {
         setError(null)
         setLoading(true)
         try {
-            await sendVerificationCode({ name, email, cardNumber })
+            await sendVerificationCode({ name, email, cardNumber: normalizeCardNumber(cardNumber) })
             startCooldown()
             setCode('')
         } catch (err) {
@@ -143,7 +144,7 @@ export default function PrimeiroAcessoPage() {
         if (password !== confirmPassword) { setError('As senhas não coincidem.'); return }
         setLoading(true)
         try {
-            await register({ name, email, cardNumber, password, code })
+            await register({ name, email, cardNumber: normalizeCardNumber(cardNumber), password, code })
             router.push('/dashboard')
         } catch (err) {
             const msg = parseError(err, 'Erro ao criar conta.')
@@ -173,10 +174,10 @@ export default function PrimeiroAcessoPage() {
                                     value={name} onChange={e => setName(e.target.value)} required maxLength={150} />
                                 <Input label="E-mail institucional" type="email" placeholder="aluno@ufrgs.br"
                                     value={email} onChange={e => setEmail(e.target.value)} required maxLength={150} />
-                                <Input label="Número do cartão" placeholder="000000000"
+                                <Input label="Número do cartão" placeholder="00000000"
                                     value={cardNumber}
-                                    onChange={e => setCardNumber(e.target.value.replace(/\D/g, '').slice(0, 9))}
-                                    required maxLength={9} />
+                                    onChange={e => setCardNumber(formatCardNumber(e.target.value))}
+                                    required />
                                 {error && <p className="text-xs text-red-600 -mt-1">{error}</p>}
                                 <Button type="submit" loading={loading} className="w-full justify-center mt-2">
                                     Enviar código

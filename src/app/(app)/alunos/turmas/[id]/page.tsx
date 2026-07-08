@@ -15,6 +15,7 @@ import { ApiError } from '@/lib/api'
 import type { Turma, UserResponse } from '@/types'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import { formatCardNumber, normalizeCardNumber } from '@/lib/card-number'
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -138,7 +139,7 @@ function AdicionarAlunoModal({
         setErroNovo(null)
         setCriando(true)
         try {
-            const aluno = await createUser({ name, email, cardNumber, password, role: 'ALUNO' })
+            const aluno = await createUser({ name, email, cardNumber: normalizeCardNumber(cardNumber), password, role: 'ALUNO' })
             await addAlunoToTurma(turmaId, aluno.id)
             resetAll()
             onAdded([aluno])
@@ -316,10 +317,9 @@ function AdicionarAlunoModal({
                             <div className="flex-1">
                                 <Input
                                     label="Número do cartão"
-                                    placeholder="000000000"
-                                    maxLength={9}
+                                    placeholder="00000000"
                                     value={cardNumber}
-                                    onChange={(e) => setCardNumber(e.target.value)}
+                                    onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
                                     required
                                 />
                             </div>
