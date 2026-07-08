@@ -87,18 +87,22 @@
     }
 
     html {
+        min-width: 0;
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
+        overflow-x: clip;
         overscroll-behavior-x: none;
     }
 
     body {
         @apply bg-surface-page text-content-primary font-sans;
         position: relative;
+        min-width: 0;
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
+        overflow-x: clip;
         overscroll-behavior-x: none;
         touch-action: pan-y;
     }
@@ -110,15 +114,24 @@
     }
 
     .app-shell {
+        min-width: 0;
         width: 100%;
         max-width: 100%;
+        height: 100dvh;
+        overflow: hidden;
         touch-action: pan-y;
     }
 
     .app-main {
+        min-width: 0;
         width: 100%;
         max-width: 100%;
+        height: 100dvh;
         contain: inline-size;
+        overflow-x: hidden;
+        overflow-x: clip;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .mobile-bottom-nav {
@@ -133,13 +146,13 @@
     @media (max-width: 767px) {
         .app-shell {
             display: block;
-            width: 100svw;
-            max-width: 100svw;
+            width: 100%;
+            max-width: 100%;
         }
 
         .app-main {
-            width: 100svw;
-            max-width: 100svw;
+            width: 100%;
+            max-width: 100%;
         }
     }
 }

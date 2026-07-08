@@ -19,7 +19,7 @@ function TurmaCard({ turma, onClick }: { turma: Turma; onClick: () => void }) {
                 'bg-surface-default border border-border-subtle',
                 'rounded-xl shadow-xs p-5 cursor-pointer',
                 'hover:shadow-sm hover:border-border-default',
-                'transition-all duration-150 min-w-0',
+                'transition-all duration-150 min-w-0 max-w-full overflow-hidden',
             )}
         >
             <div className="flex items-start justify-between gap-3 mb-3">
@@ -36,9 +36,9 @@ function TurmaCard({ turma, onClick }: { turma: Turma; onClick: () => void }) {
             </h3>
             <p className="text-xs text-content-secondary mb-4">{turma.semester}</p>
 
-            <div className="flex items-center justify-between text-[11px] text-content-tertiary">
-                <span>{turma.alunos.length} aluno{turma.alunos.length !== 1 ? 's' : ''}</span>
-                <span>{new Date(turma.createdAt).toLocaleDateString('pt-BR')}</span>
+            <div className="flex min-w-0 items-center justify-between gap-3 text-[11px] text-content-tertiary">
+                <span className="min-w-0 truncate">{turma.alunos.length} aluno{turma.alunos.length !== 1 ? 's' : ''}</span>
+                <span className="shrink-0">{new Date(turma.createdAt).toLocaleDateString('pt-BR')}</span>
             </div>
         </div>
     )
@@ -51,7 +51,7 @@ function NovaTurmaCard({ onClick }: { onClick: () => void }) {
         <button
             onClick={onClick}
             className={cn(
-                'w-full min-w-0 text-left',
+                'w-full min-w-0 max-w-full overflow-hidden text-left',
                 'bg-teal-50 border-2 border-dashed border-teal-200',
                 'rounded-xl p-5 cursor-pointer',
                 'hover:bg-teal-100 hover:border-teal-300',

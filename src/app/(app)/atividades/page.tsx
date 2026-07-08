@@ -75,7 +75,7 @@ function ActivityCard({ activity, isProfessor, onClick, onConcluir }: {
                 'bg-surface-default border border-border-subtle',
                 'rounded-xl shadow-xs p-5 cursor-pointer',
                 'hover:shadow-sm hover:border-border-default',
-                'transition-all duration-150 flex min-w-0 flex-col gap-3',
+                'transition-all duration-150 flex min-w-0 max-w-full overflow-hidden flex-col gap-3',
             )}
         >
             <div className="flex items-start justify-between gap-3">
@@ -208,7 +208,7 @@ function NewActivityCard({ onClick }: { onClick: () => void }) {
         <button
             onClick={onClick}
             className={cn(
-                'w-full text-left',
+                'w-full min-w-0 max-w-full overflow-hidden text-left',
                 'bg-teal-50 border-2 border-dashed border-teal-200',
                 'rounded-xl p-5 cursor-pointer',
                 'hover:bg-teal-100 hover:border-teal-300',
@@ -603,7 +603,7 @@ function AtividadesContent() {
 
             {/* Cards */}
             {!loading && !error && view === 'cards' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <NewActivityCard onClick={() => setModalOpen(true)} />
                     {atividades.length === 0 && (
                         <p className="col-span-full text-sm text-content-tertiary py-4">
