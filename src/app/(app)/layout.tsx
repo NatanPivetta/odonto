@@ -26,13 +26,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         .toUpperCase()
 
     return (
-        <div className="flex min-h-screen overflow-x-hidden bg-surface-page">
+        <div className="app-shell flex min-h-dvh w-full max-w-full overflow-x-hidden bg-surface-page">
             <Sidebar
                 role={user.role}
                 userName={user.name}
                 userInitials={initials}
             />
-            <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-16 md:pb-0">
+            <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-mobile-nav md:pb-0">
                 {children}
             </main>
             <ThemeToggle className="md:hidden fixed top-3 right-3 z-50" />

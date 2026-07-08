@@ -43,8 +43,8 @@ export default function BottomNav({ role }: BottomNavProps) {
     }
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-default border-t border-border-subtle z-50">
-            <div className="flex w-full py-2 pb-safe">
+        <div className="mobile-bottom-nav md:hidden fixed inset-x-0 bottom-0 bg-surface-default border-t border-border-subtle z-50">
+            <div className="flex w-full px-1 pt-2">
                 {items.map((item) => {
                     const active = !item.disabled && (pathname === item.href || pathname.startsWith(item.href + '/'))
                     const Icon = item.icon
@@ -53,7 +53,7 @@ export default function BottomNav({ role }: BottomNavProps) {
                         return (
                             <span
                                 key={item.href}
-                                className="flex min-w-0 flex-1 flex-col items-center gap-1 px-1 py-1 text-xs text-content-tertiary opacity-40 cursor-not-allowed"
+                                className="flex min-w-0 flex-1 flex-col items-center gap-1 px-1 py-1 text-[11px] text-content-tertiary opacity-40 cursor-not-allowed"
                             >
                                 <Icon size={20} />
                                 {item.label}
@@ -66,7 +66,7 @@ export default function BottomNav({ role }: BottomNavProps) {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                'flex min-w-0 flex-1 flex-col items-center gap-1 px-1 py-1 text-xs transition-colors',
+                                'flex min-w-0 flex-1 flex-col items-center gap-1 px-1 py-1 text-[11px] transition-colors',
                                 active ? 'text-teal-600' : 'text-content-secondary'
                             )}
                         >
@@ -78,7 +78,7 @@ export default function BottomNav({ role }: BottomNavProps) {
 
                 <button
                     onClick={handleLogout}
-                    className="flex min-w-0 flex-1 flex-col items-center gap-1 px-1 py-1 text-xs text-content-secondary hover:text-red-600 transition-colors"
+                    className="flex min-w-0 flex-1 flex-col items-center gap-1 px-1 py-1 text-[11px] text-content-secondary hover:text-red-600 transition-colors"
                 >
                     <FiLogOut size={20} />
                     Sair

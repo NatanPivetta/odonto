@@ -532,13 +532,13 @@ function AtividadesContent() {
     return (
         <div className="w-full max-w-full overflow-x-hidden px-4 py-6 md:p-8">
             {/* Header */}
-            <div className="mb-6 flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
-                <div className="min-w-0">
+            <div className="mb-6 flex min-w-0 flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
+                <div className="min-w-0 max-w-full">
                     <p className="text-sm text-content-secondary mb-1">Gestão</p>
-                    <h1 className="font-serif text-3xl text-content-primary">Atividades</h1>
+                    <h1 className="font-serif text-3xl leading-tight text-content-primary">Atividades</h1>
                 </div>
 
-                <div className="flex w-full min-w-0 items-center gap-2 md:w-auto">
+                <div className="grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-2 md:flex md:w-auto">
                     {/* Botão de filtros */}
                     <button
                         onClick={() => setFilterOpen(true)}
@@ -551,7 +551,7 @@ function AtividadesContent() {
                         )}
                     >
                         <IconFilter />
-                        Filtrar
+                        <span className="hidden min-[360px]:inline">Filtrar</span>
                         {activeFilterCount > 0 && (
                             <span className="ml-0.5 bg-teal-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">
                                 {activeFilterCount}
@@ -560,28 +560,28 @@ function AtividadesContent() {
                     </button>
 
                     {/* Toggle cards/lista */}
-                    <div className="grid min-w-0 flex-1 grid-cols-2 gap-1 rounded-lg bg-surface-subtle p-1 md:flex md:flex-none md:items-center">
+                    <div className="grid min-w-0 grid-cols-2 gap-1 rounded-lg bg-surface-subtle p-1 md:flex md:flex-none md:items-center">
                         <button
                             onClick={() => setView('cards')}
                             className={cn(
-                                'flex min-w-0 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-all md:px-3',
+                                'flex min-w-0 items-center justify-center gap-1 rounded-md px-1.5 py-1.5 text-xs font-medium transition-all md:gap-1.5 md:px-3',
                                 view === 'cards'
                                     ? 'bg-surface-default text-content-primary shadow-xs'
                                     : 'text-content-tertiary hover:text-content-secondary',
                             )}
                         >
-                            <IconGrid /> Cards
+                            <IconGrid /> <span className="truncate">Cards</span>
                         </button>
                         <button
                             onClick={() => setView('lista')}
                             className={cn(
-                                'flex min-w-0 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-all md:px-3',
+                                'flex min-w-0 items-center justify-center gap-1 rounded-md px-1.5 py-1.5 text-xs font-medium transition-all md:gap-1.5 md:px-3',
                                 view === 'lista'
                                     ? 'bg-surface-default text-content-primary shadow-xs'
                                     : 'text-content-tertiary hover:text-content-secondary',
                             )}
                         >
-                            <IconList /> Lista
+                            <IconList /> <span className="truncate">Lista</span>
                         </button>
                     </div>
                 </div>

@@ -85,12 +85,36 @@
         --info-surface: 12 26 46;
     }
 
-    body {
-        @apply bg-surface-page text-content-primary font-sans;
+    html {
+        width: 100%;
+        max-width: 100%;
         overflow-x: hidden;
     }
 
-    html {
+    body {
+        @apply bg-surface-page text-content-primary font-sans;
+        width: 100%;
+        max-width: 100%;
         overflow-x: hidden;
+        overscroll-behavior-x: none;
+    }
+
+    #__next {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .app-shell {
+        width: 100%;
+        max-width: 100dvw;
+    }
+
+    .mobile-bottom-nav {
+        padding-bottom: max(env(safe-area-inset-bottom), 10px);
+    }
+
+    .pb-mobile-nav {
+        padding-bottom: calc(76px + max(env(safe-area-inset-bottom), 10px));
     }
 }
