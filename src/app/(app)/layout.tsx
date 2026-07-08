@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar/Sidebar'
 import BottomNav from '@/components/layout/BottomNav/BottomNav'
 import ThemeToggle from '@/components/ui/ThemeToggle'
+import LayoutDebugOverlay from '@/components/layout/LayoutDebugOverlay'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { user, isInitialized } = useAuth()
@@ -37,6 +38,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </main>
             <ThemeToggle className="md:hidden fixed top-3 right-3 z-50" />
             <BottomNav role={user.role} />
+            <LayoutDebugOverlay />
         </div>
     )
 }

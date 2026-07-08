@@ -635,7 +635,7 @@ function AtividadesContent() {
                         </button>
                     </div>
                     <div className="max-w-full overflow-x-auto">
-                        <table className="min-w-[720px] border-collapse text-sm">
+                        <table className="w-full min-w-[720px] border-collapse text-sm">
                             <thead>
                                 <tr className="bg-surface-subtle">
                                     {['Paciente', 'Prontuário', 'Status', ...(isProfessor ? ['Aluno'] : []), 'Professor', 'Turma', 'Data', ''].map((col, i) => (

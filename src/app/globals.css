@@ -143,6 +143,16 @@
         padding-bottom: calc(76px + max(env(safe-area-inset-bottom), 10px) + var(--visual-viewport-bottom));
     }
 
+    .app-main > * {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .app-main .grid > * {
+        min-width: 0;
+        max-width: 100%;
+    }
+
     @media (max-width: 767px) {
         .app-shell {
             display: block;
