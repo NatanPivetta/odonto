@@ -16,9 +16,26 @@ export type UserResponse = {
     createdAt: string
 }
 
+export type DisciplinaClinica =
+    | 'CLINICA_ODONTOLOGICA_I'
+    | 'CLINICA_ODONTOLOGICA_II'
+    | 'CLINICA_ODONTOLOGICA_III'
+    | 'CLINICA_ODONTOLOGICA_IV'
+
+export type DisciplinaClinicaOption = {
+    value: DisciplinaClinica
+    codigo: string
+    nome: string
+    label: string
+}
+
 export type Turma = {
     id: number
-    disciplina: string
+    disciplina: DisciplinaClinica
+    disciplinaCodigo: string
+    disciplinaNome: string
+    disciplinaLabel: string
+    codigoTurma: string
     name: string
     semester: string
     active: boolean
@@ -137,7 +154,16 @@ export type AtividadeResponseDTO = {
     aluno: UserResponse
     professorOrientador: UserResponse
     professorTutor: UserResponse | null
-    turma: { id: number; disciplina: string; name: string; semester: string }
+    turma: {
+        id: number
+        disciplina: DisciplinaClinica
+        disciplinaCodigo: string
+        disciplinaNome: string
+        disciplinaLabel: string
+        codigoTurma: string
+        name: string
+        semester: string
+    }
     atividadePaiId: number | null
     createdAt: string
 }

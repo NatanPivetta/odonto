@@ -304,7 +304,7 @@ export default function AtividadeDetailPage() {
                     )}
                     <InfoRow
                         label="Turma"
-                        value={`${atividade.turma.name} — ${atividade.turma.disciplina}`}
+                        value={`${atividade.turma.name} — ${atividade.turma.codigoTurma} — ${atividade.turma.disciplinaLabel}`}
                     />
                 </InfoCard>
 

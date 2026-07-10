@@ -261,7 +261,9 @@ export default function NewActivityModal({
                                 >
                                     <option value="">Selecione a turma</option>
                                     {turmas.map(t => (
-                                        <option key={t.id} value={t.id}>{t.name} — {t.disciplina}</option>
+                                        <option key={t.id} value={t.id}>
+                                            {t.name} — {t.codigoTurma} — {t.disciplinaLabel}
+                                        </option>
                                     ))}
                                 </select>
                             </div>

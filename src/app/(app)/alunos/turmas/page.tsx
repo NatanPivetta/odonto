@@ -3,11 +3,18 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { listTurmas, createTurma } from '@/lib/services/turmas'
+import { listDisciplinasClinicas, listTurmas, createTurma } from '@/lib/services/turmas'
 import { ApiError } from '@/lib/api'
-import type { Turma } from '@/types'
+import type { DisciplinaClinica, DisciplinaClinicaOption, Turma } from '@/types'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+
+const selectClass = cn(
+    'font-sans text-sm text-content-primary bg-surface-default w-full',
+    'border-[1.5px] border-border-subtle rounded-md px-3.5 py-2.5',
+    'outline-none transition-[border-color] duration-150',
+    'hover:border-border-default focus:border-teal-400',
+)
 
 // ── Card de turma ──────────────────────────────────────────────────
 
@@ -24,7 +31,7 @@ function TurmaCard({ turma, onClick }: { turma: Turma; onClick: () => void }) {
         >
             <div className="flex items-start justify-between gap-3 mb-3">
                 <span className="inline-block px-2 py-0.5 rounded bg-teal-50 text-teal-700 text-[11px] font-semibold tracking-wide uppercase">
-                    {turma.disciplina}
+                    {turma.codigoTurma}
                 </span>
                 {!turma.active && (
                     <span className="text-[11px] text-content-tertiary">Inativa</span>
@@ -34,7 +41,8 @@ function TurmaCard({ turma, onClick }: { turma: Turma; onClick: () => void }) {
             <h3 className="text-sm font-semibold text-content-primary leading-snug mb-1">
                 {turma.name}
             </h3>
-            <p className="text-xs text-content-secondary mb-4">{turma.semester}</p>
+            <p className="mb-1 truncate text-xs text-content-secondary">{turma.disciplinaLabel}</p>
+            <p className="text-xs text-content-tertiary mb-4">{turma.semester}</p>
 
             <div className="flex min-w-0 items-center justify-between gap-3 text-[11px] text-content-tertiary">
                 <span className="min-w-0 truncate">{turma.alunos.length} aluno{turma.alunos.length !== 1 ? 's' : ''}</span>
@@ -80,14 +88,18 @@ interface NovaTurmaModalProps {
 }
 
 function NovaTurmaModal({ open, onClose, onCreated }: NovaTurmaModalProps) {
-    const [disciplina, setDisciplina] = useState('')
+    const [disciplinas, setDisciplinas] = useState<DisciplinaClinicaOption[]>([])
+    const [disciplina, setDisciplina] = useState<DisciplinaClinica | ''>('')
+    const [codigoTurma, setCodigoTurma] = useState('')
     const [name, setName] = useState('')
     const [semester, setSemester] = useState('')
     const [loading, setLoading] = useState(false)
+    const [loadingDisciplinas, setLoadingDisciplinas] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
     function reset() {
         setDisciplina('')
+        setCodigoTurma('')
         setName('')
         setSemester('')
         setError(null)
@@ -98,12 +110,26 @@ function NovaTurmaModal({ open, onClose, onCreated }: NovaTurmaModalProps) {
         onClose()
     }
 
+    useEffect(() => {
+        if (!open || disciplinas.length > 0) return
+
+        setLoadingDisciplinas(true)
+        listDisciplinasClinicas()
+            .then(setDisciplinas)
+            .catch(() => setError('Não foi possível carregar as disciplinas.'))
+            .finally(() => setLoadingDisciplinas(false))
+    }, [open, disciplinas.length])
+
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
+        if (!disciplina) {
+            setError('Selecione uma disciplina.')
+            return
+        }
         setError(null)
         setLoading(true)
         try {
-            const turma = await createTurma({ disciplina, name, semester })
+            const turma = await createTurma({ disciplina, codigoTurma, name, semester })
             reset()
             onCreated(turma)
         } catch (err) {
@@ -139,18 +165,40 @@ function NovaTurmaModal({ open, onClose, onCreated }: NovaTurmaModalProps) {
                 </div>
 
                 <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-4">
-                    <div className="flex gap-3">
-                        <div className="w-32 shrink-0">
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[13px] font-medium text-content-secondary">
+                            Disciplina
+                        </label>
+                        <select
+                            value={disciplina}
+                            onChange={(e) => setDisciplina(e.target.value as DisciplinaClinica)}
+                            className={selectClass}
+                            required
+                            disabled={loadingDisciplinas}
+                        >
+                            <option value="">
+                                {loadingDisciplinas ? 'Carregando disciplinas...' : 'Selecione a disciplina'}
+                            </option>
+                            {disciplinas.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
+                        <div className="min-w-0">
                             <Input
-                                label="Disciplina"
-                                placeholder="ODE01"
-                                maxLength={20}
-                                value={disciplina}
-                                onChange={(e) => setDisciplina(e.target.value)}
+                                label="Código da turma"
+                                placeholder="Ex: CLIN01-A"
+                                maxLength={30}
+                                value={codigoTurma}
+                                onChange={(e) => setCodigoTurma(e.target.value)}
                                 required
                             />
                         </div>
-                        <div className="flex-1">
+                        <div className="min-w-0">
                             <Input
                                 label="Semestre"
                                 placeholder="2026/1"

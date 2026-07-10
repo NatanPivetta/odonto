@@ -1,14 +1,16 @@
 import { api } from '@/lib/api'
-import type { Turma, Page } from '@/types'
+import type { DisciplinaClinica, DisciplinaClinicaOption, Turma, Page } from '@/types'
 
 export interface CreateTurmaRequest {
-    disciplina: string  // max 20
-    name: string        // max 100
-    semester: string    // max 10, ex: "2026/1"
+    disciplina: DisciplinaClinica
+    codigoTurma: string
+    name: string
+    semester: string
 }
 
 export interface UpdateTurmaRequest {
-    disciplina?: string
+    disciplina?: DisciplinaClinica
+    codigoTurma?: string
     name?: string
     semester?: string
     active?: boolean
@@ -16,6 +18,10 @@ export interface UpdateTurmaRequest {
 
 export function createTurma(data: CreateTurmaRequest) {
     return api.post<Turma>('/v1/turmas', data)
+}
+
+export function listDisciplinasClinicas() {
+    return api.get<DisciplinaClinicaOption[]>('/v1/turmas/disciplinas')
 }
 
 export function listTurmas(params?: { page?: number; size?: number }) {

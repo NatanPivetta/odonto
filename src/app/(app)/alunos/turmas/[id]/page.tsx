@@ -586,11 +586,12 @@ export default function TurmaDetailPage() {
                     <div className="min-w-0 max-w-full">
                         <div className="flex items-center gap-2 mb-1">
                             <span className="px-2 py-0.5 rounded bg-teal-50 text-teal-700 text-[11px] font-semibold tracking-wide uppercase">
-                                {turma.disciplina}
+                                {turma.codigoTurma}
                             </span>
                             <span className="text-xs text-content-tertiary">{turma.semester}</span>
                         </div>
                         <h1 className="font-serif text-3xl leading-tight text-content-primary">{turma.name}</h1>
+                        <p className="mt-1 text-sm text-content-secondary">{turma.disciplinaLabel}</p>
                         {turma.alunos.length > 0 && (
                             <p className="text-sm text-content-tertiary mt-1">
                                 {turma.alunos.length} aluno{turma.alunos.length > 1 ? 's' : ''} matriculado{turma.alunos.length > 1 ? 's' : ''}
