@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { FiGrid, FiClipboard, FiUser, FiUsers, FiLogOut } from 'react-icons/fi'
+import { FiClipboard, FiUser, FiUsers, FiLogOut } from 'react-icons/fi'
 import { useAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
@@ -20,13 +20,11 @@ interface NavItem {
 }
 
 const itemsAluno: NavItem[] = [
-    { label: 'Painel', href: '/dashboard', icon: FiGrid },
     { label: 'Atividades', href: '/atividades', icon: FiClipboard },
     { label: 'Perfil', href: '/perfil', icon: FiUser, disabled: true },
 ]
 
 const itemsProfessor: NavItem[] = [
-    { label: 'Painel', href: '/dashboard', icon: FiGrid },
     { label: 'Atividades', href: '/atividades', icon: FiClipboard },
     { label: 'Alunos', href: '/alunos/turmas', icon: FiUsers },
 ]

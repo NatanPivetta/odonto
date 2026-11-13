@@ -145,7 +145,7 @@ export default function PrimeiroAcessoPage() {
         setLoading(true)
         try {
             await register({ name, email, cardNumber: normalizeCardNumber(cardNumber), password, code })
-            router.push('/dashboard')
+            router.push('/atividades')
         } catch (err) {
             const msg = parseError(err, 'Erro ao criar conta.')
             setError(msg)

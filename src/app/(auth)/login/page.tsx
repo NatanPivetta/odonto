@@ -26,7 +26,7 @@ export default function LoginPage() {
 
         try {
             await login(normalizeCardNumber(cardNumber), password)
-            router.push('/dashboard')
+            router.push('/atividades')
         } catch (err) {
             if (err instanceof ApiError && err.isUnauthorized) {
                 setError('Número de cartão ou senha inválidos.')

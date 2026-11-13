@@ -2,7 +2,6 @@ export const navAluno = [
     {
         title: 'Principal',
         items: [
-            { label: 'Meu painel', href: '/dashboard', icon: '📊', badge: 3 },
             {
                 label: 'Atividades',
                 href: '/atividades',
@@ -26,7 +25,6 @@ export const navProfessor = [
     {
         title: 'Gestão',
         items: [
-            { label: 'Dashboard', href: '/dashboard', icon: '📊' },
             {
                 label: 'Atividades',
                 href: '/atividades',
