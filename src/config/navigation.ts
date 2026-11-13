@@ -36,7 +36,7 @@ export const navProfessor = [
             },
             {
                 label: 'Alunos',
-                href: '/alunos/turmas',
+                href: '/alunos',
                 icon: '👥',
                 children: [
                     { label: 'Turmas', href: '/alunos/turmas' },

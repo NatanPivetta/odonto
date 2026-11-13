@@ -26,7 +26,7 @@ const itemsAluno: NavItem[] = [
 
 const itemsProfessor: NavItem[] = [
     { label: 'Atividades', href: '/atividades', icon: FiClipboard },
-    { label: 'Alunos', href: '/alunos/turmas', icon: FiUsers },
+    { label: 'Alunos', href: '/alunos', icon: FiUsers },
 ]
 
 export default function BottomNav({ role }: BottomNavProps) {

@@ -472,6 +472,12 @@ function AtividadesContent() {
         status: statusFromUrl ?? undefined,
     }))
 
+    const [previousStatus, setPreviousStatus] = useState(statusFromUrl)
+    if (previousStatus !== statusFromUrl) {
+        setPreviousStatus(statusFromUrl)
+        setFilters(previous => ({ ...previous, status: statusFromUrl ?? undefined }))
+    }
+
     const activeFilterCount = Object.values(filters).filter(v => v !== undefined).length
 
     // Carrega dados dos filtros (professor only, uma vez)
@@ -492,6 +498,7 @@ function AtividadesContent() {
     useEffect(() => {
         if (!user) return
         const currentUser = user
+        let cancelled = false
 
         async function load() {
             try {
@@ -504,16 +511,18 @@ function AtividadesContent() {
                     })
                     : await listMinhasAtividades({
                         tipo: filters.tipo,
+                        status: filters.status,
                         size: 100,
                     })
-                setAtividades(page.content)
+                if (!cancelled) setAtividades(page.content)
             } catch {
-                setError('Não foi possível carregar as atividades. Verifique sua conexão.')
+                if (!cancelled) setError('Não foi possível carregar as atividades. Verifique sua conexão.')
             } finally {
-                setLoading(false)
+                if (!cancelled) setLoading(false)
             }
         }
         load()
+        return () => { cancelled = true }
     }, [user, filters])
 
     function handleSave(nova: AtividadeResponseDTO) {

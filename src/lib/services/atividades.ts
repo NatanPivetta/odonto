@@ -93,7 +93,7 @@ export function listAtividades(params?: ListAtividadesParams) {
     return api.get<Page<AtividadeResponseDTO>>(`/v1/atividades?${query}`)
 }
 
-export function listMinhasAtividades(params?: { page?: number; size?: number; sort?: string; direction?: 'ASC' | 'DESC'; tipo?: TipoAtividade }) {
+export function listMinhasAtividades(params?: { page?: number; size?: number; sort?: string; direction?: 'ASC' | 'DESC'; tipo?: TipoAtividade; status?: AtividadeStatus }) {
     const query = buildQuery({
         page: params?.page ?? 0,
         size: params?.size ?? 20,
@@ -101,7 +101,8 @@ export function listMinhasAtividades(params?: { page?: number; size?: number; so
         direction: params?.direction ?? 'DESC',
         ...(params?.tipo !== undefined ? { tipo: params.tipo } : {}),
     })
-    return api.get<Page<AtividadeResponseDTO>>(`/v1/atividades/minhas?${query}`)
+    const statusQuery = params?.status ? `&status=${params.status}` : ''
+    return api.get<Page<AtividadeResponseDTO>>(`/v1/atividades/minhas?${query}${statusQuery}`)
 }
 
 export function getAtividadeById(id: number) {
