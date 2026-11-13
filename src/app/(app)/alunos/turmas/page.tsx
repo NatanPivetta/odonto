@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { listDisciplinasClinicas, listTurmas, createTurma } from '@/lib/services/turmas'
 import { ApiError } from '@/lib/api'
@@ -263,6 +264,7 @@ export default function TurmasPage() {
     return (
         <div className="w-full max-w-full overflow-x-hidden px-4 py-6 md:p-8">
             <div className="mb-6 min-w-0">
+                <Link href="/alunos" className="mb-3 inline-block text-sm text-teal-600 hover:underline">← Voltar para alunos</Link>
                 <p className="text-sm text-content-secondary mb-1">Gestão</p>
                 <h1 className="font-serif text-3xl text-content-primary">Turmas</h1>
             </div>

@@ -61,7 +61,7 @@ export default function NewActivityModal({
 
         // Pré-seleciona campos da atividade pai
         if (parentAtividade) {
-            if (parentAtividade.nomePaciente) setNomePaciente(parentAtividade.nomePaciente)
+            setNomePaciente(parentAtividade.nomePaciente ?? '')
             if (role === 'PROFESSOR') {
                 setAlunoId(String(parentAtividade.aluno.id))
                 setAlunos([parentAtividade.aluno])
@@ -141,7 +141,7 @@ export default function NewActivityModal({
                     data,
                     dataConclusao: dataConclusao || null,
                     prontuario,
-                    nomePaciente: nomePaciente || null,
+                    nomePaciente: parentAtividade ? parentAtividade.nomePaciente ?? null : nomePaciente || null,
                     observacoes: observacoes || null,
                     status,
                     tipo,
@@ -157,7 +157,7 @@ export default function NewActivityModal({
                     data,
                     dataConclusao: dataConclusao || null,
                     prontuario,
-                    nomePaciente: nomePaciente || null,
+                    nomePaciente: parentAtividade ? parentAtividade.nomePaciente ?? null : nomePaciente || null,
                     observacoes: observacoes || null,
                     status,
                     tipo,
@@ -413,7 +413,10 @@ export default function NewActivityModal({
                     <Input
                         label="Nome do paciente"
                         placeholder="Ex: João Silva"
-                        value={nomePaciente}
+                        value={parentAtividade ? parentAtividade.nomePaciente ?? '' : nomePaciente}
+                        readOnly={!!parentAtividade}
+                        hint={parentAtividade ? 'O paciente é o mesmo da atividade principal.' : undefined}
+                        className={parentAtividade ? 'bg-surface-subtle cursor-default' : undefined}
                         onChange={e => setNomePaciente(e.target.value)}
                         maxLength={150}
                     />
