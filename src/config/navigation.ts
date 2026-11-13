@@ -10,6 +10,7 @@ export const navAluno = [
                     { label: 'Pendentes', href: '/atividades?status=PENDENTE' },
                     { label: 'Em andamento', href: '/atividades?status=EM_ANDAMENTO' },
                     { label: 'Concluídas', href: '/atividades?status=CONCLUIDA' },
+                    { label: 'Pacientes com alta', href: '/atividades?status=ALTA' },
                 ],
             },
             { label: 'Meu progresso', href: '/progresso', icon: '📈', disabled: true },
